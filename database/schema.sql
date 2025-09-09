@@ -1,4 +1,5 @@
 CREATE TABLE company (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     company_name TEXT,
     abn TEXT,
     nmi_mirn TEXT,
@@ -8,11 +9,13 @@ CREATE TABLE company (
 );
 
 CREATE TABLE invoice (
+    company_id INTEGER NOT NULL,
     period TEXT,
     nmi_number TEXT,
     location2 TEXT,
     invoice TEXT,
     ex_gst REAL,
     gst REAL,
-    total REAL
+    total REAL,
+    FOREIGN KEY (company_id) REFERENCES company(id)
 );
