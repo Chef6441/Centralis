@@ -1,9 +1,69 @@
--- Example data for Centralis schema
-INSERT INTO company (company_name, abn, nmi_mirn, site_address, suburb, postcode) VALUES
-  ('Acme Pty Ltd', '12345678901', 'NMI123', '1 Main St', 'Sydney', '2000'),
-  ('Globex Corporation', '98765432109', 'NMI987', '42 Enterprise Rd', 'Melbourne', '3000');
+INSERT INTO reports (
+    report_identifier,
+    report_date,
+    customer_business_name,
+    customer_contact_name,
+    broker_consultant,
+    site_nmi,
+    site_current_retailer,
+    site_contract_end_date,
+    site_address_line1,
+    site_address_line2,
+    site_peak_kwh,
+    site_shoulder_kwh,
+    site_off_peak_kwh,
+    site_total_kwh,
+    contract_current_retailer,
+    contract_term_months,
+    current_cost,
+    new_cost,
+    validity_period,
+    payment_terms
+) VALUES (
+    '146',
+    '2025-09-25',
+    'Discover 202 Pty Ltd',
+    'Nelsy Zreik',
+    'Alex Dechnicz',
+    '41039619655',
+    'Momentum Energy',
+    '2026-09-30',
+    'Unit 12, 28 Logistics Drive',
+    'Erskine Park, 2759, NSW, Australia',
+    20080,
+    47832,
+    75929,
+    143841,
+    'Energy Australia',
+    24,
+    7850,
+    7200,
+    '30 Days',
+    'Net 14'
+);
 
-INSERT INTO invoice (company_id, period, nmi_number, location2, invoice, ex_gst, gst, total) VALUES
-  (1, '2024-01', 'NMI123', 'Warehouse', 'INV-001', 1000.00, 100.00, 1100.00),
-  (1, '2024-02', 'NMI123', 'Warehouse', 'INV-002', 1200.00, 120.00, 1320.00),
-  (2, '2024-01', 'NMI987', 'Office', 'INV-003', 900.00, 90.00, 990.00);
+INSERT INTO contract_offers (
+    report_id,
+    supplier_name,
+    term_months,
+    peak_rate,
+    shoulder_rate,
+    off_peak_rate,
+    total_cost,
+    diff_dollar,
+    diff_percentage
+) VALUES
+    (1, 'Current', 12, 0.093, 0.11071, 0.09319, 14594.36, NULL, NULL),
+    (1, 'Supplier 2', 12, 0.11071, 0.11071, 0.09319, 14594.36, 0.0, 100),
+    (1, 'Supplier 3', 12, 0.11071, 0.11071, 0.09319, 14594.36, 0.0, 100),
+    (1, 'Current', 24, 0.093, 0.11071, 0.09319, 29188.72, NULL, NULL),
+    (1, 'Supplier 2', 24, 0.11071, 0.11071, 0.09319, 29188.72, 14594.36, 200),
+    (1, 'Supplier 3', 24, 0.11071, 0.11071, 0.09319, 29188.72, 14594.36, 200),
+    (1, 'Current', 36, 0.093, 0.11071, 0.09319, 43783.08, NULL, NULL),
+    (1, 'Supplier 2', 36, 0.11071, 0.11071, 0.09319, 43783.08, 29188.72, 200),
+    (1, 'Supplier 3', 36, 0.11071, 0.11071, 0.09319, 43783.08, 29188.72, 300);
+
+INSERT INTO other_costs (report_id, cost_label, cost_amount) VALUES
+    (1, 'Network Costs', 1000.0),
+    (1, 'Cost 2', 1000.0),
+    (1, 'Cost 3', 1000.0);
