@@ -43,6 +43,7 @@ $termHeadings = [
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="report">
+<div class="report__page">
 <header class="report__header">
     <div class="container">
         <p class="disclaimer">Prices are indicative only.</p>
@@ -207,5 +208,6 @@ $termHeadings = [
         <p>&copy; <?= date('Y') ?> Centralis</p>
     </div>
 </footer>
+</div>
 </body>
 </html>

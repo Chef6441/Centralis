@@ -19,6 +19,57 @@ body {
     color: var(--text);
 }
 
+body.report {
+    background: #e5e7eb;
+    display: flex;
+    justify-content: center;
+    padding: 2rem 0;
+    min-height: 100vh;
+    overflow-y: auto;
+}
+
+.report__page {
+    width: 210mm;
+    min-height: 297mm;
+    background: var(--white);
+    box-shadow: 0 25px 50px rgba(15, 23, 42, 0.15);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+body.report .container {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0 18mm;
+}
+
+.report__header .container {
+    padding: 18mm 18mm 12mm;
+}
+
+.report__content {
+    flex: 1;
+    padding: 12mm 18mm 18mm;
+    display: flex;
+    flex-direction: column;
+    gap: 12mm;
+}
+
+.report__content .card {
+    margin: 0;
+}
+
+.footer .container {
+    padding: 12mm 18mm 18mm;
+}
+
+body.report .footer {
+    padding: 0;
+}
+
 .container {
     width: min(1100px, 95vw);
     margin: 0 auto;
@@ -162,7 +213,7 @@ body {
 .report__header {
     background: linear-gradient(135deg, var(--primary), #122b45);
     color: var(--white);
-    padding: 2.5rem 0;
+    padding: 0;
 }
 
 .report__summary {
@@ -227,19 +278,59 @@ dl dd {
 }
 
 @media print {
+    @page {
+        size: A4;
+        margin: 0;
+    }
+
     body {
         background: #ffffff;
     }
 
     .top-bar,
-    .button,
-    .footer {
-        display: none;
+    .button {
+        display: none !important;
+    }
+
+    body.report {
+        padding: 0;
+        min-height: auto;
+    }
+
+    .report__page {
+        width: 100%;
+        min-height: auto;
+        box-shadow: none;
+        border-radius: 0;
+    }
+
+    body.report .container {
+        padding-left: 18mm;
+        padding-right: 18mm;
+    }
+
+    .report__header .container {
+        padding-top: 18mm;
+        padding-bottom: 12mm;
+    }
+
+    .report__content {
+        padding-top: 12mm;
+        padding-bottom: 18mm;
+    }
+
+    .footer .container {
+        padding-top: 12mm;
+        padding-bottom: 18mm;
     }
 
     .card {
         box-shadow: none;
         border: 1px solid #e5e7eb;
         page-break-inside: avoid;
+    }
+
+    .table-scroll {
+        overflow: visible;
     }
 }
