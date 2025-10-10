@@ -1,3 +1,61 @@
+INSERT INTO brokers (
+    name,
+    contact_name,
+    contact_email,
+    contact_phone
+) VALUES (
+    'GoBrokerage',
+    'GoBrokerage Team',
+    'hello@gobrokerage.com',
+    '+61 2 0000 0000'
+);
+
+INSERT INTO suppliers (
+    name,
+    contact_email,
+    contact_phone,
+    address
+) VALUES
+    ('Momentum Energy', 'support@momentum.com.au', '+61 3 1234 5678', 'Melbourne, VIC'),
+    ('Energy Australia', 'service@energyaustralia.com.au', '+61 3 9876 5432', 'Melbourne, VIC'),
+    ('Supplier 3', 'sales@supplier3.com.au', '+61 2 2468 1357', 'Sydney, NSW');
+
+INSERT INTO contracts (
+    supplier_id,
+    broker_id,
+    client_business_name,
+    contract_start_date,
+    contract_end_date,
+    contract_value,
+    status
+) VALUES
+    (1, 1, 'Discover 202 Pty Ltd', '2024-10-01', '2026-09-30', 7200, 'Active'),
+    (2, 1, 'Discover 202 Pty Ltd', '2023-10-01', '2024-09-30', 7850, 'Expired');
+
+INSERT INTO quotes (
+    supplier_id,
+    broker_id,
+    client_business_name,
+    quote_date,
+    term_months,
+    total_cost,
+    status
+) VALUES
+    (1, 1, 'Discover 202 Pty Ltd', '2024-08-01', 24, 7200, 'Accepted'),
+    (2, 1, 'Discover 202 Pty Ltd', '2024-08-01', 24, 7850, 'Declined'),
+    (3, 1, 'Discover 202 Pty Ltd', '2024-08-02', 12, 6800, 'Under Review');
+
+INSERT INTO invoices (
+    supplier_id,
+    contract_id,
+    invoice_number,
+    invoice_date,
+    amount,
+    status
+) VALUES
+    (1, 1, 'INV-2024-001', '2024-10-15', 7200, 'Paid'),
+    (2, 2, 'INV-2024-002', '2024-09-30', 7850, 'Pending');
+
 INSERT INTO reports (
     report_identifier,
     report_date,

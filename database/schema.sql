@@ -1,6 +1,71 @@
+DROP TABLE IF EXISTS invoices;
+DROP TABLE IF EXISTS quotes;
+DROP TABLE IF EXISTS contracts;
+DROP TABLE IF EXISTS suppliers;
+DROP TABLE IF EXISTS brokers;
 DROP TABLE IF EXISTS other_costs;
 DROP TABLE IF EXISTS contract_offers;
 DROP TABLE IF EXISTS reports;
+
+CREATE TABLE brokers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    contact_name TEXT,
+    contact_email TEXT,
+    contact_phone TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE suppliers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    contact_email TEXT,
+    contact_phone TEXT,
+    address TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE contracts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    supplier_id INTEGER NOT NULL,
+    broker_id INTEGER NOT NULL,
+    client_business_name TEXT NOT NULL,
+    contract_start_date TEXT,
+    contract_end_date TEXT,
+    contract_value REAL,
+    status TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (supplier_id) REFERENCES suppliers(id) ON DELETE RESTRICT,
+    FOREIGN KEY (broker_id) REFERENCES brokers(id) ON DELETE RESTRICT
+);
+
+CREATE TABLE quotes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    supplier_id INTEGER NOT NULL,
+    broker_id INTEGER NOT NULL,
+    client_business_name TEXT NOT NULL,
+    quote_date TEXT,
+    term_months INTEGER,
+    total_cost REAL,
+    status TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (supplier_id) REFERENCES suppliers(id) ON DELETE CASCADE,
+    FOREIGN KEY (broker_id) REFERENCES brokers(id) ON DELETE CASCADE
+);
+
+CREATE TABLE invoices (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    supplier_id INTEGER NOT NULL,
+    contract_id INTEGER,
+    invoice_number TEXT NOT NULL,
+    invoice_date TEXT,
+    amount REAL,
+    status TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (supplier_id) REFERENCES suppliers(id) ON DELETE CASCADE,
+    FOREIGN KEY (contract_id) REFERENCES contracts(id) ON DELETE SET NULL,
+    UNIQUE (invoice_number)
+);
 
 CREATE TABLE reports (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
