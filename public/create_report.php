@@ -220,6 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </script>
 </head>
 <body>
+<?php include __DIR__ . '/../includes/navbar.php'; ?>
 <header class="top-bar">
     <div class="container">
         <h1>Create Energy Report</h1>

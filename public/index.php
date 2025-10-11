@@ -14,6 +14,7 @@ $reports = $statement ? $statement->fetchAll(PDO::FETCH_ASSOC) : [];
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+<?php include __DIR__ . '/../includes/navbar.php'; ?>
 <header class="top-bar">
     <div class="container">
         <h1>Centralis Energy Reports</h1>
