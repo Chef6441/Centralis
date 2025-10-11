@@ -248,8 +248,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="post">
-            <div style="border: 1px solid #ccc; padding: 16px; margin-bottom: 24px;">
-                <h2 style="margin-top: 0;">Report Details</h2>
+            <h2>Report Details</h2>
+            <div style="padding: 12px 0;">
                 <p>
                     <label for="report_identifier">Report ID</label><br>
                     <input id="report_identifier" type="text" name="report_identifier" size="40" value="<?= htmlspecialchars($formData['report_identifier']) ?>" required>
@@ -272,8 +272,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </p>
             </div>
 
-            <div style="border: 1px solid #ccc; padding: 16px; margin-bottom: 24px;">
-                <h2 style="margin-top: 0;">Site Information</h2>
+            <h2>Site Information</h2>
+            <div style="padding: 12px 0;">
                 <p>
                     <label for="site_nmi">NMI</label><br>
                     <input id="site_nmi" type="text" name="site_nmi" size="40" value="<?= htmlspecialchars($formData['site_nmi']) ?>">
@@ -312,8 +312,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </p>
             </div>
 
-            <div style="border: 1px solid #ccc; padding: 16px; margin-bottom: 24px;">
-                <h2 style="margin-top: 0;">Current Contract</h2>
+            <h2>Current Contract</h2>
+            <div style="padding: 12px 0;">
                 <p>
                     <label for="contract_current_retailer">Current Retailer</label><br>
                     <input id="contract_current_retailer" type="text" name="contract_current_retailer" size="40" value="<?= htmlspecialchars($formData['contract_current_retailer']) ?>">
@@ -340,13 +340,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </p>
             </div>
 
-            <div style="border: 1px solid #ccc; padding: 16px; margin-bottom: 24px;">
-                <h2 style="margin-top: 0;">Contract Offers</h2>
+            <h2>Contract Offers</h2>
+            <div style="padding: 12px 0;">
                 <p>
                     <button type="button" onclick="addContractRow()">Add Contract Offer</button>
                 </p>
-                <div>
-                    <table border="1" cellpadding="6" cellspacing="0">
+                <table border="1" cellpadding="6" cellspacing="0">
                     <thead>
                     <tr>
                         <th>Supplier</th>
@@ -381,16 +380,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php endforeach; ?>
                     </tbody>
                 </table>
-                </div>
             </div>
 
-            <div style="border: 1px solid #ccc; padding: 16px; margin-bottom: 24px;">
-                <h2 style="margin-top: 0;">Other Costs</h2>
+            <h2>Other Costs</h2>
+            <div style="padding: 12px 0;">
                 <p>
                     <button type="button" onclick="addOtherCostRow()">Add Other Cost</button>
                 </p>
-                <div>
-                    <table border="1" cellpadding="6" cellspacing="0">
+                <table border="1" cellpadding="6" cellspacing="0">
                     <thead>
                     <tr>
                         <th>Description</th>
@@ -406,7 +403,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php endforeach; ?>
                     </tbody>
                 </table>
-                </div>
             </div>
 
             <p>
