@@ -40,6 +40,17 @@ $termHeadings = [
 <head>
     <meta charset="UTF-8">
     <title>Energy Report <?= htmlspecialchars($report['report_identifier']) ?></title>
+    <style>
+        @media print {
+            .report-section {
+                page-break-inside: avoid;
+            }
+
+            .report-section:not(:last-of-type) {
+                page-break-after: always;
+            }
+        }
+    </style>
 </head>
 <body>
 <header>
@@ -53,11 +64,13 @@ $termHeadings = [
     </nav>
     <br>
     <nav>
-        <a href="create_report.php">Create Report</a>
+        <a href="create_report.php">Create Report</a> |
+        <a href="edit_report.php?id=<?= urlencode($reportId) ?>">Edit Report</a> |
+        <a href="#" onclick="return confirmDeleteReport();">Delete Report</a>
     </nav>
 </header>
 <main>
-    <section>
+    <section class="report-section">
         <h1>Energy Price Comparison</h1>
         <p><strong>Report reference:</strong> <?= htmlspecialchars($report['report_identifier']) ?></p>
         <p><strong>Prepared for:</strong> <?= htmlspecialchars($report['customer_business_name']) ?></p>
@@ -66,7 +79,7 @@ $termHeadings = [
         <p><strong>Primary contact:</strong> <?= htmlspecialchars($report['customer_contact_name'] ?? 'N/A') ?></p>
     </section>
 
-    <section>
+    <section class="report-section">
         <h2>Business &amp; Site Details</h2>
 
         <h3>Business Information</h3>
@@ -152,7 +165,7 @@ $termHeadings = [
         </table>
     </section>
 
-    <section>
+    <section class="report-section">
         <h2>Price Comparison</h2>
         <?php foreach ($termHeadings as $term => $heading): ?>
             <?php if (!isset($contractsByTerm[$term])) { continue; } ?>
@@ -208,7 +221,7 @@ $termHeadings = [
         <p><small>Prices are indicative only.</small></p>
     </section>
 
-    <section>
+    <section class="report-section">
         <h2>Next Steps / Actions</h2>
         <ol>
             <li>Secure the chosen retailer’s energy agreement.</li>
@@ -222,5 +235,17 @@ $termHeadings = [
         <p><small>Prices are indicative only.</small></p>
     </section>
 </main>
+
+<form id="delete-report-form" action="delete_report.php" method="post" style="display:none;">
+    <input type="hidden" name="id" value="<?= htmlspecialchars($reportId) ?>">
+</form>
+<script>
+function confirmDeleteReport() {
+    if (confirm('Delete this report?')) {
+        document.getElementById('delete-report-form').submit();
+    }
+    return false;
+}
+</script>
 </body>
 </html>
