@@ -46,10 +46,14 @@ $termHeadings = [
     <nav>
         <a href="index.php">Dashboard</a> |
         <a href="#">Accounts</a> |
-        <a href="create_report.php">Reports</a> |
+        <a href="reports.php">Reports</a> |
         <a href="#">Billing</a> |
         <a href="#">Tasks</a> |
         <a href="#">Settings</a>
+    </nav>
+    <br>
+    <nav>
+        <a href="create_report.php">Create Report</a>
     </nav>
 </header>
 <main>
