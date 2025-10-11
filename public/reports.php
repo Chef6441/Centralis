@@ -54,12 +54,8 @@ $reports = $statement ? $statement->fetchAll(PDO::FETCH_ASSOC) : [];
                         <td><?= htmlspecialchars($report['report_date']) ?></td>
                         <td>
                             <a href="report.php?id=<?= urlencode($report['id']) ?>">View</a> |
-                            <a href="edit_report.php?id=<?= urlencode($report['id']) ?>">Edit</a>
-                            |
-                            <form action="delete_report.php" method="post" style="display:inline" onsubmit="return confirm('Delete this report?');">
-                                <input type="hidden" name="id" value="<?= htmlspecialchars($report['id']) ?>">
-                                <button type="submit">Delete</button>
-                            </form>
+                            <a href="edit_report.php?id=<?= urlencode($report['id']) ?>">Edit</a> |
+                            <a href="#" class="delete-report-link" data-report-id="<?= htmlspecialchars($report['id']) ?>">Delete</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -74,5 +70,27 @@ $reports = $statement ? $statement->fetchAll(PDO::FETCH_ASSOC) : [];
         <p>&copy; <?= date('Y') ?> Centralis</p>
     </div>
 </footer>
+
+<form id="delete-report-form" action="delete_report.php" method="post" style="display:none;">
+    <input type="hidden" name="id" id="delete-report-id">
+</form>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var deleteLinks = document.querySelectorAll('.delete-report-link');
+    var deleteForm = document.getElementById('delete-report-form');
+    var deleteIdField = document.getElementById('delete-report-id');
+
+    deleteLinks.forEach(function (link) {
+        link.addEventListener('click', function (event) {
+            event.preventDefault();
+            var reportId = this.getAttribute('data-report-id');
+            if (reportId && confirm('Delete this report?')) {
+                deleteIdField.value = reportId;
+                deleteForm.submit();
+            }
+        });
+    });
+});
+</script>
 </body>
 </html>
