@@ -10,6 +10,22 @@ INSERT INTO brokers (
     '+61 2 0000 0000'
 );
 
+INSERT INTO partners (
+    broker_id,
+    name,
+    contact_name,
+    contact_email,
+    contact_phone,
+    revenue_share_percentage
+) VALUES (
+    1,
+    'Energy Referral Partners',
+    'Jordan Matthews',
+    'jordan@energyreferralpartners.com.au',
+    '+61 2 9999 1111',
+    20.0
+);
+
 INSERT INTO suppliers (
     name,
     contact_email,
@@ -20,30 +36,42 @@ INSERT INTO suppliers (
     ('Energy Australia', 'service@energyaustralia.com.au', '+61 3 9876 5432', 'Melbourne, VIC'),
     ('Supplier 3', 'sales@supplier3.com.au', '+61 2 2468 1357', 'Sydney, NSW');
 
+INSERT INTO clients (
+    broker_id,
+    partner_id,
+    business_name,
+    contact_name,
+    contact_email,
+    contact_phone,
+    address
+) VALUES
+    (1, 1, 'Discover 202 Pty Ltd', 'Nelsy Zreik', 'nelsy@discover202.com.au', '+61 2 8888 0000', 'Unit 12, 28 Logistics Drive, Erskine Park, NSW 2759'),
+    (1, NULL, 'Direct Industries Pty Ltd', 'Jamie Lee', 'jamie.lee@directindustries.com.au', '+61 3 7777 5555', '45 Market Street, Melbourne, VIC 3000');
+
 INSERT INTO contracts (
     supplier_id,
     broker_id,
-    client_business_name,
+    client_id,
     contract_start_date,
     contract_end_date,
     contract_value,
     status
 ) VALUES
-    (1, 1, 'Discover 202 Pty Ltd', '2024-10-01', '2026-09-30', 7200, 'Active'),
-    (2, 1, 'Discover 202 Pty Ltd', '2023-10-01', '2024-09-30', 7850, 'Expired');
+    (1, 1, 1, '2024-10-01', '2026-09-30', 7200, 'Active'),
+    (2, 1, 1, '2023-10-01', '2024-09-30', 7850, 'Expired');
 
 INSERT INTO quotes (
     supplier_id,
     broker_id,
-    client_business_name,
+    client_id,
     quote_date,
     term_months,
     total_cost,
     status
 ) VALUES
-    (1, 1, 'Discover 202 Pty Ltd', '2024-08-01', 24, 7200, 'Accepted'),
-    (2, 1, 'Discover 202 Pty Ltd', '2024-08-01', 24, 7850, 'Declined'),
-    (3, 1, 'Discover 202 Pty Ltd', '2024-08-02', 12, 6800, 'Under Review');
+    (1, 1, 1, '2024-08-01', 24, 7200, 'Accepted'),
+    (2, 1, 1, '2024-08-01', 24, 7850, 'Declined'),
+    (3, 1, 2, '2024-08-02', 12, 6800, 'Under Review');
 
 INSERT INTO invoices (
     supplier_id,

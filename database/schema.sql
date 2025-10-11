@@ -1,6 +1,8 @@
 DROP TABLE IF EXISTS invoices;
 DROP TABLE IF EXISTS quotes;
 DROP TABLE IF EXISTS contracts;
+DROP TABLE IF EXISTS clients;
+DROP TABLE IF EXISTS partners;
 DROP TABLE IF EXISTS suppliers;
 DROP TABLE IF EXISTS brokers;
 DROP TABLE IF EXISTS other_costs;
@@ -16,6 +18,19 @@ CREATE TABLE brokers (
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE partners (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    broker_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    contact_name TEXT,
+    contact_email TEXT,
+    contact_phone TEXT,
+    revenue_share_percentage REAL DEFAULT 0,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (broker_id) REFERENCES brokers(id) ON DELETE CASCADE,
+    UNIQUE (broker_id, name)
+);
+
 CREATE TABLE suppliers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL UNIQUE,
@@ -25,32 +40,49 @@ CREATE TABLE suppliers (
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE clients (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    broker_id INTEGER NOT NULL,
+    partner_id INTEGER,
+    business_name TEXT NOT NULL,
+    contact_name TEXT,
+    contact_email TEXT,
+    contact_phone TEXT,
+    address TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (broker_id) REFERENCES brokers(id) ON DELETE CASCADE,
+    FOREIGN KEY (partner_id) REFERENCES partners(id) ON DELETE SET NULL,
+    UNIQUE (broker_id, business_name)
+);
+
 CREATE TABLE contracts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     supplier_id INTEGER NOT NULL,
     broker_id INTEGER NOT NULL,
-    client_business_name TEXT NOT NULL,
+    client_id INTEGER NOT NULL,
     contract_start_date TEXT,
     contract_end_date TEXT,
     contract_value REAL,
     status TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (supplier_id) REFERENCES suppliers(id) ON DELETE RESTRICT,
-    FOREIGN KEY (broker_id) REFERENCES brokers(id) ON DELETE RESTRICT
+    FOREIGN KEY (broker_id) REFERENCES brokers(id) ON DELETE RESTRICT,
+    FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE RESTRICT
 );
 
 CREATE TABLE quotes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     supplier_id INTEGER NOT NULL,
     broker_id INTEGER NOT NULL,
-    client_business_name TEXT NOT NULL,
+    client_id INTEGER NOT NULL,
     quote_date TEXT,
     term_months INTEGER,
     total_cost REAL,
     status TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (supplier_id) REFERENCES suppliers(id) ON DELETE CASCADE,
-    FOREIGN KEY (broker_id) REFERENCES brokers(id) ON DELETE CASCADE
+    FOREIGN KEY (broker_id) REFERENCES brokers(id) ON DELETE CASCADE,
+    FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
 );
 
 CREATE TABLE invoices (
