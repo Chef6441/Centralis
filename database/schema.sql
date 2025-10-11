@@ -5,54 +5,55 @@ DROP TABLE IF EXISTS clients;
 DROP TABLE IF EXISTS partners;
 DROP TABLE IF EXISTS suppliers;
 DROP TABLE IF EXISTS brokers;
+DROP TABLE IF EXISTS companies;
 DROP TABLE IF EXISTS other_costs;
 DROP TABLE IF EXISTS contract_offers;
 DROP TABLE IF EXISTS reports;
 
-CREATE TABLE brokers (
+CREATE TABLE companies (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL UNIQUE,
+    company_type TEXT NOT NULL CHECK (company_type IN ('broker', 'supplier', 'partner', 'client')),
     contact_name TEXT,
     contact_email TEXT,
     contact_phone TEXT,
+    address TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE brokers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    company_id INTEGER NOT NULL UNIQUE,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE
 );
 
 CREATE TABLE partners (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     broker_id INTEGER NOT NULL,
-    name TEXT NOT NULL,
-    contact_name TEXT,
-    contact_email TEXT,
-    contact_phone TEXT,
+    company_id INTEGER NOT NULL UNIQUE,
     revenue_share_percentage REAL DEFAULT 0,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (broker_id) REFERENCES brokers(id) ON DELETE CASCADE,
-    UNIQUE (broker_id, name)
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE
 );
 
 CREATE TABLE suppliers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL UNIQUE,
-    contact_email TEXT,
-    contact_phone TEXT,
-    address TEXT,
-    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    company_id INTEGER NOT NULL UNIQUE,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE
 );
 
 CREATE TABLE clients (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     broker_id INTEGER NOT NULL,
     partner_id INTEGER,
-    business_name TEXT NOT NULL,
-    contact_name TEXT,
-    contact_email TEXT,
-    contact_phone TEXT,
-    address TEXT,
+    company_id INTEGER NOT NULL UNIQUE,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (broker_id) REFERENCES brokers(id) ON DELETE CASCADE,
     FOREIGN KEY (partner_id) REFERENCES partners(id) ON DELETE SET NULL,
-    UNIQUE (broker_id, business_name)
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE
 );
 
 CREATE TABLE contracts (

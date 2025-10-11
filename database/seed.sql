@@ -1,52 +1,55 @@
-INSERT INTO brokers (
+INSERT INTO companies (
     name,
+    company_type,
     contact_name,
     contact_email,
-    contact_phone
-) VALUES (
-    'GoBrokerage',
-    'GoBrokerage Team',
-    'hello@gobrokerage.com',
-    '+61 2 0000 0000'
+    contact_phone,
+    address
+) VALUES
+    ('GoBrokerage', 'broker', 'GoBrokerage Team', 'hello@gobrokerage.com', '+61 2 0000 0000', NULL),
+    ('Energy Referral Partners', 'partner', 'Jordan Matthews', 'jordan@energyreferralpartners.com.au', '+61 2 9999 1111', NULL),
+    ('Momentum Energy', 'supplier', NULL, 'support@momentum.com.au', '+61 3 1234 5678', 'Melbourne, VIC'),
+    ('Energy Australia', 'supplier', NULL, 'service@energyaustralia.com.au', '+61 3 9876 5432', 'Melbourne, VIC'),
+    ('Supplier 3', 'supplier', NULL, 'sales@supplier3.com.au', '+61 2 2468 1357', 'Sydney, NSW'),
+    ('Discover 202 Pty Ltd', 'client', 'Nelsy Zreik', 'nelsy@discover202.com.au', '+61 2 8888 0000', 'Unit 12, 28 Logistics Drive, Erskine Park, NSW 2759'),
+    ('Direct Industries Pty Ltd', 'client', 'Jamie Lee', 'jamie.lee@directindustries.com.au', '+61 3 7777 5555', '45 Market Street, Melbourne, VIC 3000');
+
+INSERT INTO brokers (company_id)
+VALUES (
+    (SELECT id FROM companies WHERE name = 'GoBrokerage')
 );
 
 INSERT INTO partners (
     broker_id,
-    name,
-    contact_name,
-    contact_email,
-    contact_phone,
+    company_id,
     revenue_share_percentage
 ) VALUES (
-    1,
-    'Energy Referral Partners',
-    'Jordan Matthews',
-    'jordan@energyreferralpartners.com.au',
-    '+61 2 9999 1111',
+    (SELECT id FROM brokers WHERE company_id = (SELECT id FROM companies WHERE name = 'GoBrokerage')),
+    (SELECT id FROM companies WHERE name = 'Energy Referral Partners'),
     20.0
 );
 
-INSERT INTO suppliers (
-    name,
-    contact_email,
-    contact_phone,
-    address
-) VALUES
-    ('Momentum Energy', 'support@momentum.com.au', '+61 3 1234 5678', 'Melbourne, VIC'),
-    ('Energy Australia', 'service@energyaustralia.com.au', '+61 3 9876 5432', 'Melbourne, VIC'),
-    ('Supplier 3', 'sales@supplier3.com.au', '+61 2 2468 1357', 'Sydney, NSW');
+INSERT INTO suppliers (company_id)
+VALUES
+    ((SELECT id FROM companies WHERE name = 'Momentum Energy')),
+    ((SELECT id FROM companies WHERE name = 'Energy Australia')),
+    ((SELECT id FROM companies WHERE name = 'Supplier 3'));
 
 INSERT INTO clients (
     broker_id,
     partner_id,
-    business_name,
-    contact_name,
-    contact_email,
-    contact_phone,
-    address
+    company_id
 ) VALUES
-    (1, 1, 'Discover 202 Pty Ltd', 'Nelsy Zreik', 'nelsy@discover202.com.au', '+61 2 8888 0000', 'Unit 12, 28 Logistics Drive, Erskine Park, NSW 2759'),
-    (1, NULL, 'Direct Industries Pty Ltd', 'Jamie Lee', 'jamie.lee@directindustries.com.au', '+61 3 7777 5555', '45 Market Street, Melbourne, VIC 3000');
+    (
+        (SELECT id FROM brokers WHERE company_id = (SELECT id FROM companies WHERE name = 'GoBrokerage')),
+        (SELECT id FROM partners WHERE company_id = (SELECT id FROM companies WHERE name = 'Energy Referral Partners')),
+        (SELECT id FROM companies WHERE name = 'Discover 202 Pty Ltd')
+    ),
+    (
+        (SELECT id FROM brokers WHERE company_id = (SELECT id FROM companies WHERE name = 'GoBrokerage')),
+        NULL,
+        (SELECT id FROM companies WHERE name = 'Direct Industries Pty Ltd')
+    );
 
 INSERT INTO contracts (
     supplier_id,
@@ -57,8 +60,24 @@ INSERT INTO contracts (
     contract_value,
     status
 ) VALUES
-    (1, 1, 1, '2024-10-01', '2026-09-30', 7200, 'Active'),
-    (2, 1, 1, '2023-10-01', '2024-09-30', 7850, 'Expired');
+    (
+        (SELECT s.id FROM suppliers s JOIN companies c ON c.id = s.company_id WHERE c.name = 'Momentum Energy'),
+        (SELECT b.id FROM brokers b JOIN companies c ON c.id = b.company_id WHERE c.name = 'GoBrokerage'),
+        (SELECT cl.id FROM clients cl JOIN companies c ON c.id = cl.company_id WHERE c.name = 'Discover 202 Pty Ltd'),
+        '2024-10-01',
+        '2026-09-30',
+        7200,
+        'Active'
+    ),
+    (
+        (SELECT s.id FROM suppliers s JOIN companies c ON c.id = s.company_id WHERE c.name = 'Energy Australia'),
+        (SELECT b.id FROM brokers b JOIN companies c ON c.id = b.company_id WHERE c.name = 'GoBrokerage'),
+        (SELECT cl.id FROM clients cl JOIN companies c ON c.id = cl.company_id WHERE c.name = 'Discover 202 Pty Ltd'),
+        '2023-10-01',
+        '2024-09-30',
+        7850,
+        'Expired'
+    );
 
 INSERT INTO quotes (
     supplier_id,
@@ -69,9 +88,33 @@ INSERT INTO quotes (
     total_cost,
     status
 ) VALUES
-    (1, 1, 1, '2024-08-01', 24, 7200, 'Accepted'),
-    (2, 1, 1, '2024-08-01', 24, 7850, 'Declined'),
-    (3, 1, 2, '2024-08-02', 12, 6800, 'Under Review');
+    (
+        (SELECT s.id FROM suppliers s JOIN companies c ON c.id = s.company_id WHERE c.name = 'Momentum Energy'),
+        (SELECT b.id FROM brokers b JOIN companies c ON c.id = b.company_id WHERE c.name = 'GoBrokerage'),
+        (SELECT cl.id FROM clients cl JOIN companies c ON c.id = cl.company_id WHERE c.name = 'Discover 202 Pty Ltd'),
+        '2024-08-01',
+        24,
+        7200,
+        'Accepted'
+    ),
+    (
+        (SELECT s.id FROM suppliers s JOIN companies c ON c.id = s.company_id WHERE c.name = 'Energy Australia'),
+        (SELECT b.id FROM brokers b JOIN companies c ON c.id = b.company_id WHERE c.name = 'GoBrokerage'),
+        (SELECT cl.id FROM clients cl JOIN companies c ON c.id = cl.company_id WHERE c.name = 'Discover 202 Pty Ltd'),
+        '2024-08-01',
+        24,
+        7850,
+        'Declined'
+    ),
+    (
+        (SELECT s.id FROM suppliers s JOIN companies c ON c.id = s.company_id WHERE c.name = 'Supplier 3'),
+        (SELECT b.id FROM brokers b JOIN companies c ON c.id = b.company_id WHERE c.name = 'GoBrokerage'),
+        (SELECT cl.id FROM clients cl JOIN companies c ON c.id = cl.company_id WHERE c.name = 'Direct Industries Pty Ltd'),
+        '2024-08-02',
+        12,
+        6800,
+        'Under Review'
+    );
 
 INSERT INTO invoices (
     supplier_id,
@@ -81,8 +124,22 @@ INSERT INTO invoices (
     amount,
     status
 ) VALUES
-    (1, 1, 'INV-2024-001', '2024-10-15', 7200, 'Paid'),
-    (2, 2, 'INV-2024-002', '2024-09-30', 7850, 'Pending');
+    (
+        (SELECT s.id FROM suppliers s JOIN companies c ON c.id = s.company_id WHERE c.name = 'Momentum Energy'),
+        (SELECT id FROM contracts WHERE contract_start_date = '2024-10-01' AND contract_end_date = '2026-09-30'),
+        'INV-2024-001',
+        '2024-10-15',
+        7200,
+        'Paid'
+    ),
+    (
+        (SELECT s.id FROM suppliers s JOIN companies c ON c.id = s.company_id WHERE c.name = 'Energy Australia'),
+        (SELECT id FROM contracts WHERE contract_start_date = '2023-10-01' AND contract_end_date = '2024-09-30'),
+        'INV-2024-002',
+        '2024-09-30',
+        7850,
+        'Pending'
+    );
 
 INSERT INTO reports (
     report_identifier,
