@@ -105,6 +105,7 @@ CREATE TABLE reports (
     report_date TEXT,
     customer_business_name TEXT NOT NULL,
     customer_contact_name TEXT,
+    customer_abn TEXT,
     broker_consultant TEXT,
     site_nmi TEXT,
     site_current_retailer TEXT,

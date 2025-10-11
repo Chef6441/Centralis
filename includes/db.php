@@ -39,6 +39,7 @@ function initializeDatabase(PDO $pdo): void
     $hasReportsTable = $statement !== false && $statement->fetchColumn() !== false;
 
     if ($hasReportsTable) {
+        ensureReportsTableHasCustomerAbn($pdo);
         return;
     }
 
@@ -53,4 +54,22 @@ function initializeDatabase(PDO $pdo): void
     }
 
     $pdo->exec($schemaSql);
+    ensureReportsTableHasCustomerAbn($pdo);
+}
+
+/**
+ * Adds the customer_abn column to the reports table when missing.
+ */
+function ensureReportsTableHasCustomerAbn(PDO $pdo): void
+{
+    $statement = $pdo->query('PRAGMA table_info(reports)');
+    $columns = $statement !== false ? $statement->fetchAll(PDO::FETCH_ASSOC) : [];
+
+    foreach ($columns as $column) {
+        if (($column['name'] ?? '') === 'customer_abn') {
+            return;
+        }
+    }
+
+    $pdo->exec('ALTER TABLE reports ADD COLUMN customer_abn TEXT');
 }

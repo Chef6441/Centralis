@@ -8,6 +8,7 @@ $formData = [
     'report_date' => '',
     'customer_business_name' => '',
     'customer_contact_name' => '',
+    'customer_abn' => '',
     'broker_consultant' => '',
     'site_nmi' => '',
     'site_current_retailer' => '',
@@ -68,6 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 report_date,
                 customer_business_name,
                 customer_contact_name,
+                customer_abn,
                 broker_consultant,
                 site_nmi,
                 site_current_retailer,
@@ -89,6 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 :report_date,
                 :customer_business_name,
                 :customer_contact_name,
+                :customer_abn,
                 :broker_consultant,
                 :site_nmi,
                 :site_current_retailer,
@@ -113,6 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':report_date' => $formData['report_date'] ?: null,
             ':customer_business_name' => $formData['customer_business_name'],
             ':customer_contact_name' => $formData['customer_contact_name'] ?: null,
+            ':customer_abn' => $formData['customer_abn'] ?: null,
             ':broker_consultant' => $formData['broker_consultant'] ?: null,
             ':site_nmi' => $formData['site_nmi'] ?: null,
             ':site_current_retailer' => $formData['site_current_retailer'] ?: null,
@@ -266,6 +270,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <p>
                     <label for="customer_contact_name">Customer Contact Name</label><br>
                     <input id="customer_contact_name" type="text" name="customer_contact_name" size="40" value="<?= htmlspecialchars($formData['customer_contact_name']) ?>">
+                </p>
+                <p>
+                    <label for="customer_abn">Customer ABN</label><br>
+                    <input id="customer_abn" type="text" name="customer_abn" size="20" value="<?= htmlspecialchars($formData['customer_abn']) ?>">
                 </p>
                 <p>
                     <label for="broker_consultant">Broker Consultant</label><br>
