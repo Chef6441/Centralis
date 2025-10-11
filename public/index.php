@@ -35,7 +35,7 @@ $reports = $statement ? $statement->fetchAll(PDO::FETCH_ASSOC) : [];
                         <th>ID</th>
                         <th>Business Name</th>
                         <th>Report Date</th>
-                        <th></th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -44,7 +44,16 @@ $reports = $statement ? $statement->fetchAll(PDO::FETCH_ASSOC) : [];
                         <td><?= htmlspecialchars($report['report_identifier']) ?></td>
                         <td><?= htmlspecialchars($report['customer_business_name']) ?></td>
                         <td><?= htmlspecialchars($report['report_date']) ?></td>
-                        <td><a class="button button--link" href="report.php?id=<?= urlencode($report['id']) ?>">View</a></td>
+                        <td>
+                            <div class="action-buttons">
+                                <a class="button button--link" href="report.php?id=<?= urlencode($report['id']) ?>">View</a>
+                                <a class="button button--link" href="edit_report.php?id=<?= urlencode($report['id']) ?>">Edit</a>
+                                <form method="post" action="delete_report.php" onsubmit="return confirm('Delete this report? This action cannot be undone.');">
+                                    <input type="hidden" name="id" value="<?= htmlspecialchars($report['id']) ?>">
+                                    <button type="submit" class="button button--link button--danger">Delete</button>
+                                </form>
+                            </div>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
