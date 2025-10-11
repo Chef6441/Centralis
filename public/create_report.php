@@ -236,7 +236,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </header>
 
 <main>
-    <section>
+    <section style="padding: 16px;">
         <?php if (!empty($errors)): ?>
             <div>
                 <ul>
@@ -248,75 +248,105 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="post">
-            <h2>Report Details</h2>
-            <label>Report ID
-                <input type="text" name="report_identifier" value="<?= htmlspecialchars($formData['report_identifier']) ?>" required>
-            </label>
-            <label>Report Date
-                <input type="date" name="report_date" value="<?= htmlspecialchars($formData['report_date']) ?>">
-            </label>
-            <label>Customer Business Name
-                <input type="text" name="customer_business_name" value="<?= htmlspecialchars($formData['customer_business_name']) ?>" required>
-            </label>
-            <label>Customer Contact Name
-                <input type="text" name="customer_contact_name" value="<?= htmlspecialchars($formData['customer_contact_name']) ?>">
-            </label>
-            <label>Broker Consultant
-                <input type="text" name="broker_consultant" value="<?= htmlspecialchars($formData['broker_consultant']) ?>">
-            </label>
+            <div style="border: 1px solid #ccc; padding: 16px; margin-bottom: 24px;">
+                <h2 style="margin-top: 0;">Report Details</h2>
+                <p>
+                    <label for="report_identifier">Report ID</label><br>
+                    <input id="report_identifier" type="text" name="report_identifier" size="40" value="<?= htmlspecialchars($formData['report_identifier']) ?>" required>
+                </p>
+                <p>
+                    <label for="report_date">Report Date</label><br>
+                    <input id="report_date" type="date" name="report_date" value="<?= htmlspecialchars($formData['report_date']) ?>">
+                </p>
+                <p>
+                    <label for="customer_business_name">Customer Business Name</label><br>
+                    <input id="customer_business_name" type="text" name="customer_business_name" size="40" value="<?= htmlspecialchars($formData['customer_business_name']) ?>" required>
+                </p>
+                <p>
+                    <label for="customer_contact_name">Customer Contact Name</label><br>
+                    <input id="customer_contact_name" type="text" name="customer_contact_name" size="40" value="<?= htmlspecialchars($formData['customer_contact_name']) ?>">
+                </p>
+                <p>
+                    <label for="broker_consultant">Broker Consultant</label><br>
+                    <input id="broker_consultant" type="text" name="broker_consultant" size="40" value="<?= htmlspecialchars($formData['broker_consultant']) ?>">
+                </p>
+            </div>
 
-            <h2>Site Information</h2>
-            <label>NMI
-                <input type="text" name="site_nmi" value="<?= htmlspecialchars($formData['site_nmi']) ?>">
-            </label>
-            <label>Current Retailer
-                <input type="text" name="site_current_retailer" value="<?= htmlspecialchars($formData['site_current_retailer']) ?>">
-            </label>
-            <label>Contract End Date
-                <input type="date" name="site_contract_end_date" value="<?= htmlspecialchars($formData['site_contract_end_date']) ?>">
-            </label>
-            <label>Supply Address Line 1
-                <input type="text" name="site_address_line1" value="<?= htmlspecialchars($formData['site_address_line1']) ?>">
-            </label>
-            <label>Supply Address Line 2
-                <input type="text" name="site_address_line2" value="<?= htmlspecialchars($formData['site_address_line2']) ?>">
-            </label>
-            <label>Peak kWh
-                <input type="number" step="1" name="site_peak_kwh" value="<?= htmlspecialchars($formData['site_peak_kwh']) ?>">
-            </label>
-            <label>Shoulder kWh
-                <input type="number" step="1" name="site_shoulder_kwh" value="<?= htmlspecialchars($formData['site_shoulder_kwh']) ?>">
-            </label>
-            <label>Off Peak kWh
-                <input type="number" step="1" name="site_off_peak_kwh" value="<?= htmlspecialchars($formData['site_off_peak_kwh']) ?>">
-            </label>
-            <label>Total kWh
-                <input type="number" step="1" name="site_total_kwh" value="<?= htmlspecialchars($formData['site_total_kwh']) ?>">
-            </label>
+            <div style="border: 1px solid #ccc; padding: 16px; margin-bottom: 24px;">
+                <h2 style="margin-top: 0;">Site Information</h2>
+                <p>
+                    <label for="site_nmi">NMI</label><br>
+                    <input id="site_nmi" type="text" name="site_nmi" size="40" value="<?= htmlspecialchars($formData['site_nmi']) ?>">
+                </p>
+                <p>
+                    <label for="site_current_retailer">Current Retailer</label><br>
+                    <input id="site_current_retailer" type="text" name="site_current_retailer" size="40" value="<?= htmlspecialchars($formData['site_current_retailer']) ?>">
+                </p>
+                <p>
+                    <label for="site_contract_end_date">Contract End Date</label><br>
+                    <input id="site_contract_end_date" type="date" name="site_contract_end_date" value="<?= htmlspecialchars($formData['site_contract_end_date']) ?>">
+                </p>
+                <p>
+                    <label for="site_address_line1">Supply Address Line 1</label><br>
+                    <input id="site_address_line1" type="text" name="site_address_line1" size="60" value="<?= htmlspecialchars($formData['site_address_line1']) ?>">
+                </p>
+                <p>
+                    <label for="site_address_line2">Supply Address Line 2</label><br>
+                    <input id="site_address_line2" type="text" name="site_address_line2" size="60" value="<?= htmlspecialchars($formData['site_address_line2']) ?>">
+                </p>
+                <p>
+                    <label for="site_peak_kwh">Peak kWh</label><br>
+                    <input id="site_peak_kwh" type="number" step="1" name="site_peak_kwh" value="<?= htmlspecialchars($formData['site_peak_kwh']) ?>">
+                </p>
+                <p>
+                    <label for="site_shoulder_kwh">Shoulder kWh</label><br>
+                    <input id="site_shoulder_kwh" type="number" step="1" name="site_shoulder_kwh" value="<?= htmlspecialchars($formData['site_shoulder_kwh']) ?>">
+                </p>
+                <p>
+                    <label for="site_off_peak_kwh">Off Peak kWh</label><br>
+                    <input id="site_off_peak_kwh" type="number" step="1" name="site_off_peak_kwh" value="<?= htmlspecialchars($formData['site_off_peak_kwh']) ?>">
+                </p>
+                <p>
+                    <label for="site_total_kwh">Total kWh</label><br>
+                    <input id="site_total_kwh" type="number" step="1" name="site_total_kwh" value="<?= htmlspecialchars($formData['site_total_kwh']) ?>">
+                </p>
+            </div>
 
-            <h2>Current Contract</h2>
-            <label>Current Retailer
-                <input type="text" name="contract_current_retailer" value="<?= htmlspecialchars($formData['contract_current_retailer']) ?>">
-            </label>
-            <label>Term (months)
-                <input type="number" step="1" name="contract_term_months" value="<?= htmlspecialchars($formData['contract_term_months']) ?>">
-            </label>
-            <label>Current Cost
-                <input type="text" name="current_cost" value="<?= htmlspecialchars($formData['current_cost']) ?>">
-            </label>
-            <label>New Cost
-                <input type="text" name="new_cost" value="<?= htmlspecialchars($formData['new_cost']) ?>">
-            </label>
-            <label>Validity Period
-                <input type="text" name="validity_period" value="<?= htmlspecialchars($formData['validity_period']) ?>">
-            </label>
-            <label>Payment Terms
-                <input type="text" name="payment_terms" value="<?= htmlspecialchars($formData['payment_terms']) ?>">
-            </label>
+            <div style="border: 1px solid #ccc; padding: 16px; margin-bottom: 24px;">
+                <h2 style="margin-top: 0;">Current Contract</h2>
+                <p>
+                    <label for="contract_current_retailer">Current Retailer</label><br>
+                    <input id="contract_current_retailer" type="text" name="contract_current_retailer" size="40" value="<?= htmlspecialchars($formData['contract_current_retailer']) ?>">
+                </p>
+                <p>
+                    <label for="contract_term_months">Term (months)</label><br>
+                    <input id="contract_term_months" type="number" step="1" name="contract_term_months" value="<?= htmlspecialchars($formData['contract_term_months']) ?>">
+                </p>
+                <p>
+                    <label for="current_cost">Current Cost</label><br>
+                    <input id="current_cost" type="text" name="current_cost" size="20" value="<?= htmlspecialchars($formData['current_cost']) ?>">
+                </p>
+                <p>
+                    <label for="new_cost">New Cost</label><br>
+                    <input id="new_cost" type="text" name="new_cost" size="20" value="<?= htmlspecialchars($formData['new_cost']) ?>">
+                </p>
+                <p>
+                    <label for="validity_period">Validity Period</label><br>
+                    <input id="validity_period" type="text" name="validity_period" size="20" value="<?= htmlspecialchars($formData['validity_period']) ?>">
+                </p>
+                <p>
+                    <label for="payment_terms">Payment Terms</label><br>
+                    <input id="payment_terms" type="text" name="payment_terms" size="20" value="<?= htmlspecialchars($formData['payment_terms']) ?>">
+                </p>
+            </div>
 
-            <h2>Contract Offers</h2>
-            <div>
-                <table>
+            <div style="border: 1px solid #ccc; padding: 16px; margin-bottom: 24px;">
+                <h2 style="margin-top: 0;">Contract Offers</h2>
+                <p>
+                    <button type="button" onclick="addContractRow()">Add Contract Offer</button>
+                </p>
+                <div>
+                    <table border="1" cellpadding="6" cellspacing="0">
                     <thead>
                     <tr>
                         <th>Supplier</th>
@@ -351,12 +381,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php endforeach; ?>
                     </tbody>
                 </table>
+                </div>
             </div>
-            <button type="button" onclick="addContractRow()">Add Contract Offer</button>
 
-            <h2>Other Costs</h2>
-            <div>
-                <table>
+            <div style="border: 1px solid #ccc; padding: 16px; margin-bottom: 24px;">
+                <h2 style="margin-top: 0;">Other Costs</h2>
+                <p>
+                    <button type="button" onclick="addOtherCostRow()">Add Other Cost</button>
+                </p>
+                <div>
+                    <table border="1" cellpadding="6" cellspacing="0">
                     <thead>
                     <tr>
                         <th>Description</th>
@@ -372,12 +406,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php endforeach; ?>
                     </tbody>
                 </table>
+                </div>
             </div>
-            <button type="button" onclick="addOtherCostRow()">Add Other Cost</button>
 
-            <div>
+            <p>
                 <button type="submit">Save Report</button>
-            </div>
+            </p>
         </form>
     </section>
 </main>
