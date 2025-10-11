@@ -25,14 +25,12 @@ $reports = $statement ? $statement->fetchAll(PDO::FETCH_ASSOC) : [];
         <a href="#">Tasks</a> |
         <a href="#">Settings</a>
     </nav>
-    <nav>
-        <a href="create_report.php">Create Report</a>
-    </nav>
 </header>
 
 <main>
     <section>
         <h2>Existing Reports</h2>
+        <p><a href="create_report.php">Create Report</a></p>
         <?php if (empty($reports)): ?>
             <p>No reports have been created yet. <a href="create_report.php">Create your first report</a>.</p>
         <?php else: ?>
