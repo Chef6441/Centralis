@@ -5,7 +5,6 @@ require_once __DIR__ . '/../includes/helpers.php';
 $pdo = getDbConnection();
 
 $formData = [
-    'report_identifier' => '',
     'report_date' => '',
     'customer_business_name' => '',
     'customer_contact_name' => '',
@@ -40,6 +39,7 @@ $otherCosts = [
 ];
 
 $errors = [];
+$reportIdentifier = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach (array_keys($formData) as $key) {
@@ -49,11 +49,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $contracts = array_values($_POST['contracts'] ?? $contracts);
     $otherCosts = array_values($_POST['other_costs'] ?? $otherCosts);
 
-    if ($formData['report_identifier'] === '') {
-        $errors[] = 'Report ID is required.';
-    }
     if ($formData['customer_business_name'] === '') {
         $errors[] = 'Customer business name is required.';
+    }
+
+    if (empty($errors)) {
+        try {
+            $reportIdentifier = generateReportIdentifier($pdo);
+        } catch (Throwable $exception) {
+            $errors[] = 'Unable to generate a report ID. Please try again.';
+        }
     }
 
     if (empty($errors)) {
@@ -104,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
 
         $insertReport->execute([
-            ':report_identifier' => $formData['report_identifier'],
+            ':report_identifier' => $reportIdentifier,
             ':report_date' => $formData['report_date'] ?: null,
             ':customer_business_name' => $formData['customer_business_name'],
             ':customer_contact_name' => $formData['customer_contact_name'] ?: null,
@@ -250,10 +255,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form method="post">
             <h2>Report Details</h2>
             <div style="padding: 12px 0;">
-                <p>
-                    <label for="report_identifier">Report ID</label><br>
-                    <input id="report_identifier" type="text" name="report_identifier" size="40" value="<?= htmlspecialchars($formData['report_identifier']) ?>" required>
-                </p>
                 <p>
                     <label for="report_date">Report Date</label><br>
                     <input id="report_date" type="date" name="report_date" value="<?= htmlspecialchars($formData['report_date']) ?>">

@@ -72,3 +72,26 @@ function formatDisplayDate(?string $value): string
 
     return $date->format('d M Y');
 }
+
+/**
+ * Generates a unique report identifier with a predictable prefix.
+ *
+ * @throws RuntimeException When a unique identifier cannot be generated.
+ */
+function generateReportIdentifier(PDO $pdo): string
+{
+    $maxAttempts = 5;
+
+    for ($attempt = 0; $attempt < $maxAttempts; $attempt++) {
+        $identifier = 'RPT-' . strtoupper(bin2hex(random_bytes(4)));
+
+        $statement = $pdo->prepare('SELECT 1 FROM reports WHERE report_identifier = :identifier LIMIT 1');
+        $statement->execute([':identifier' => $identifier]);
+
+        if ($statement->fetchColumn() === false) {
+            return $identifier;
+        }
+    }
+
+    throw new RuntimeException('Unable to generate a unique report identifier.');
+}

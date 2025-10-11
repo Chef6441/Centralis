@@ -30,7 +30,6 @@ function toInputValue($value): string
 }
 
 $formData = [
-    'report_identifier' => toInputValue($report['report_identifier'] ?? ''),
     'report_date' => toInputValue($report['report_date'] ?? ''),
     'customer_business_name' => toInputValue($report['customer_business_name'] ?? ''),
     'customer_contact_name' => toInputValue($report['customer_contact_name'] ?? ''),
@@ -82,9 +81,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $contracts = array_values($_POST['contracts'] ?? $contracts);
     $otherCosts = array_values($_POST['other_costs'] ?? $otherCosts);
 
-    if ($formData['report_identifier'] === '') {
-        $errors[] = 'Report ID is required.';
-    }
     if ($formData['customer_business_name'] === '') {
         $errors[] = 'Customer business name is required.';
     }
@@ -95,7 +91,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $updateReport = $pdo->prepare(
                 'UPDATE reports SET
-                    report_identifier = :report_identifier,
                     report_date = :report_date,
                     customer_business_name = :customer_business_name,
                     customer_contact_name = :customer_contact_name,
@@ -119,7 +114,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             );
 
             $updateReport->execute([
-                ':report_identifier' => $formData['report_identifier'],
                 ':report_date' => $formData['report_date'] ?: null,
                 ':customer_business_name' => $formData['customer_business_name'],
                 ':customer_contact_name' => $formData['customer_contact_name'] ?: null,
@@ -274,10 +268,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form method="post">
             <h2>Report Details</h2>
             <div style="padding: 12px 0;">
-                <p>
-                    <label for="report_identifier">Report ID</label><br>
-                    <input id="report_identifier" type="text" name="report_identifier" value="<?= htmlspecialchars($formData['report_identifier']) ?>" required>
-                </p>
                 <p>
                     <label for="report_date">Report Date</label><br>
                     <input id="report_date" type="date" name="report_date" value="<?= htmlspecialchars($formData['report_date']) ?>">
