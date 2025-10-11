@@ -9,7 +9,7 @@
     <div>
         <h1>Centralis</h1>
     </div>
-    <nav>
+    <nav class="navbar-main">
         <a href="index.php">Dashboard</a> |
         <a href="#">Accounts</a> |
         <a href="reports.php">Reports</a> |
@@ -18,9 +18,7 @@
         <a href="#">Settings</a>
     </nav>
     <br>
-    <nav>
-        <a href="create_report.php">Create Report</a>
-    </nav>
+    <nav class="navbar-sub"></nav>
 </header>
 
 <main>

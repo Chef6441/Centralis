@@ -54,7 +54,7 @@ $termHeadings = [
 </head>
 <body>
 <header>
-    <nav>
+    <nav class="navbar-main">
         <a href="index.php">Dashboard</a> |
         <a href="#">Accounts</a> |
         <a href="reports.php">Reports</a> |
@@ -63,7 +63,7 @@ $termHeadings = [
         <a href="#">Settings</a>
     </nav>
     <br>
-    <nav>
+    <nav class="navbar-sub">
         <a href="create_report.php">Create Report</a> |
         <a href="edit_report.php?id=<?= urlencode($reportId) ?>">Edit Report</a> |
         <a href="#" onclick="return confirmDeleteReport();">Delete Report</a>
