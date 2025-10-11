@@ -1,10 +1,13 @@
 <?php
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/../includes/navigation.php';
 
 $pdo = getDbConnection();
 
 $reportId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+
+$activeNav = 'reports';
 
 $reportQuery = $pdo->prepare('SELECT * FROM reports WHERE id = :id');
 $reportQuery->execute([':id' => $reportId]);
@@ -60,146 +63,151 @@ $termHeadings = [
     </div>
 </header>
 
-<main class="container report__content">
-    <section class="card">
-        <p class="disclaimer">Prices are indicative only.</p>
-        <h2>Customer Profile</h2>
-        <div class="grid two-columns">
-            <div>
-                <h3>Business Information</h3>
-                <dl>
-                    <dt>Business Name</dt>
-                    <dd><?= htmlspecialchars($report['customer_business_name']) ?></dd>
-                    <dt>Contact Name</dt>
-                    <dd><?= htmlspecialchars($report['customer_contact_name'] ?? 'N/A') ?></dd>
-                    <dt>Energy Consultant</dt>
-                    <dd><?= htmlspecialchars($report['broker_consultant'] ?? 'N/A') ?></dd>
-                </dl>
-            </div>
-            <div>
-                <h3>Site Information</h3>
-                <dl>
-                    <dt>Current Retailer</dt>
-                    <dd><?= htmlspecialchars($report['site_current_retailer'] ?? 'N/A') ?></dd>
-                    <dt>Contract End Date</dt>
-                    <dd><?= htmlspecialchars(formatDisplayDate($report['site_contract_end_date'])) ?></dd>
-                    <dt>NMI</dt>
-                    <dd><?= htmlspecialchars($report['site_nmi'] ?? 'N/A') ?></dd>
-                    <dt>Supply Address</dt>
-                    <dd>
-                        <?= nl2br(htmlspecialchars(trim(($report['site_address_line1'] ?? '') . "\n" . ($report['site_address_line2'] ?? '')))) ?>
-                    </dd>
-                </dl>
-            </div>
-        </div>
+<div class="app-shell">
+    <?php renderSidebar($activeNav); ?>
+    <div class="app-content">
+        <main class="container report__content">
+            <section class="card">
+                <p class="disclaimer">Prices are indicative only.</p>
+                <h2>Customer Profile</h2>
+                <div class="grid two-columns">
+                    <div>
+                        <h3>Business Information</h3>
+                        <dl>
+                            <dt>Business Name</dt>
+                            <dd><?= htmlspecialchars($report['customer_business_name']) ?></dd>
+                            <dt>Contact Name</dt>
+                            <dd><?= htmlspecialchars($report['customer_contact_name'] ?? 'N/A') ?></dd>
+                            <dt>Energy Consultant</dt>
+                            <dd><?= htmlspecialchars($report['broker_consultant'] ?? 'N/A') ?></dd>
+                        </dl>
+                    </div>
+                    <div>
+                        <h3>Site Information</h3>
+                        <dl>
+                            <dt>Current Retailer</dt>
+                            <dd><?= htmlspecialchars($report['site_current_retailer'] ?? 'N/A') ?></dd>
+                            <dt>Contract End Date</dt>
+                            <dd><?= htmlspecialchars(formatDisplayDate($report['site_contract_end_date'])) ?></dd>
+                            <dt>NMI</dt>
+                            <dd><?= htmlspecialchars($report['site_nmi'] ?? 'N/A') ?></dd>
+                            <dt>Supply Address</dt>
+                            <dd>
+                                <?= nl2br(htmlspecialchars(trim(($report['site_address_line1'] ?? '') . "\n" . ($report['site_address_line2'] ?? '')))) ?>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
 
-        <div class="grid two-columns">
-            <div>
-                <h3>Current Retailer</h3>
-                <dl>
-                    <dt>Current Retailer</dt>
-                    <dd><?= htmlspecialchars($report['contract_current_retailer'] ?? 'N/A') ?></dd>
-                    <dt>Term</dt>
-                    <dd><?= htmlspecialchars($report['contract_term_months'] !== null ? $report['contract_term_months'] . ' Months' : 'N/A') ?></dd>
-                    <dt>Current</dt>
-                    <dd><?= htmlspecialchars(formatCurrency($report['current_cost'] !== null ? (float) $report['current_cost'] : null)) ?></dd>
-                    <dt>New</dt>
-                    <dd><?= htmlspecialchars(formatCurrency($report['new_cost'] !== null ? (float) $report['new_cost'] : null)) ?></dd>
-                    <dt>Validity Period</dt>
-                    <dd><?= htmlspecialchars($report['validity_period'] ?? 'N/A') ?></dd>
-                    <dt>Payment Terms</dt>
-                    <dd><?= htmlspecialchars($report['payment_terms'] ?? 'N/A') ?></dd>
-                </dl>
-            </div>
-            <div>
-                <h3>Energy Consumption</h3>
-                <dl>
-                    <dt>Peak</dt>
-                    <dd><?= htmlspecialchars(formatKwh($report['site_peak_kwh'] !== null ? (float) $report['site_peak_kwh'] : null)) ?></dd>
-                    <dt>Shoulder</dt>
-                    <dd><?= htmlspecialchars(formatKwh($report['site_shoulder_kwh'] !== null ? (float) $report['site_shoulder_kwh'] : null)) ?></dd>
-                    <dt>Off Peak</dt>
-                    <dd><?= htmlspecialchars(formatKwh($report['site_off_peak_kwh'] !== null ? (float) $report['site_off_peak_kwh'] : null)) ?></dd>
-                    <dt>Total</dt>
-                    <dd><?= htmlspecialchars(formatKwh($report['site_total_kwh'] !== null ? (float) $report['site_total_kwh'] : null)) ?></dd>
-                </dl>
-            </div>
-        </div>
-    </section>
+                <div class="grid two-columns">
+                    <div>
+                        <h3>Current Retailer</h3>
+                        <dl>
+                            <dt>Current Retailer</dt>
+                            <dd><?= htmlspecialchars($report['contract_current_retailer'] ?? 'N/A') ?></dd>
+                            <dt>Term</dt>
+                            <dd><?= htmlspecialchars($report['contract_term_months'] !== null ? $report['contract_term_months'] . ' Months' : 'N/A') ?></dd>
+                            <dt>Current</dt>
+                            <dd><?= htmlspecialchars(formatCurrency($report['current_cost'] !== null ? (float) $report['current_cost'] : null)) ?></dd>
+                            <dt>New</dt>
+                            <dd><?= htmlspecialchars(formatCurrency($report['new_cost'] !== null ? (float) $report['new_cost'] : null)) ?></dd>
+                            <dt>Validity Period</dt>
+                            <dd><?= htmlspecialchars($report['validity_period'] ?? 'N/A') ?></dd>
+                            <dt>Payment Terms</dt>
+                            <dd><?= htmlspecialchars($report['payment_terms'] ?? 'N/A') ?></dd>
+                        </dl>
+                    </div>
+                    <div>
+                        <h3>Energy Consumption</h3>
+                        <dl>
+                            <dt>Peak</dt>
+                            <dd><?= htmlspecialchars(formatKwh($report['site_peak_kwh'] !== null ? (float) $report['site_peak_kwh'] : null)) ?></dd>
+                            <dt>Shoulder</dt>
+                            <dd><?= htmlspecialchars(formatKwh($report['site_shoulder_kwh'] !== null ? (float) $report['site_shoulder_kwh'] : null)) ?></dd>
+                            <dt>Off Peak</dt>
+                            <dd><?= htmlspecialchars(formatKwh($report['site_off_peak_kwh'] !== null ? (float) $report['site_off_peak_kwh'] : null)) ?></dd>
+                            <dt>Total</dt>
+                            <dd><?= htmlspecialchars(formatKwh($report['site_total_kwh'] !== null ? (float) $report['site_total_kwh'] : null)) ?></dd>
+                        </dl>
+                    </div>
+                </div>
+            </section>
 
-    <section class="card">
-        <p class="disclaimer">Prices are indicative only.</p>
-        <h2>Price Comparison</h2>
+            <section class="card">
+                <p class="disclaimer">Prices are indicative only.</p>
+                <h2>Price Comparison</h2>
 
-        <?php foreach ($termHeadings as $term => $heading): ?>
-            <?php if (!isset($contractsByTerm[$term])) { continue; } ?>
-            <h3><?= $heading ?></h3>
-            <div class="table-scroll">
-                <table class="data-table">
-                    <thead>
-                    <tr>
-                        <th>Supplier</th>
-                        <th>P</th>
-                        <th>S</th>
-                        <th>O</th>
-                        <th>Total Costs</th>
-                        <th>$ Diff</th>
-                        <th>% Diff</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <?php foreach ($contractsByTerm[$term] as $contract): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($contract['supplier_name']) ?></td>
-                            <td><?= htmlspecialchars($contract['peak_rate'] !== null ? number_format((float)$contract['peak_rate'], 3) : 'N/A') ?></td>
-                            <td><?= htmlspecialchars($contract['shoulder_rate'] !== null ? number_format((float)$contract['shoulder_rate'], 3) : 'N/A') ?></td>
-                            <td><?= htmlspecialchars($contract['off_peak_rate'] !== null ? number_format((float)$contract['off_peak_rate'], 3) : 'N/A') ?></td>
-                            <td><?= htmlspecialchars(formatCurrency($contract['total_cost'] !== null ? (float)$contract['total_cost'] : null)) ?></td>
-                            <td><?= htmlspecialchars($contract['diff_dollar'] !== null ? formatCurrency((float)$contract['diff_dollar']) : 'N/A') ?></td>
-                            <td><?= htmlspecialchars($contract['diff_percentage'] !== null ? formatPercentage((float)$contract['diff_percentage']) : 'N/A') ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        <?php endforeach; ?>
+                <?php foreach ($termHeadings as $term => $heading): ?>
+                    <?php if (!isset($contractsByTerm[$term])) { continue; } ?>
+                    <h3><?= $heading ?></h3>
+                    <div class="table-scroll">
+                        <table class="data-table">
+                            <thead>
+                            <tr>
+                                <th>Supplier</th>
+                                <th>P</th>
+                                <th>S</th>
+                                <th>O</th>
+                                <th>Total Costs</th>
+                                <th>$ Diff</th>
+                                <th>% Diff</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php foreach ($contractsByTerm[$term] as $contract): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($contract['supplier_name']) ?></td>
+                                    <td><?= htmlspecialchars($contract['peak_rate'] !== null ? number_format((float)$contract['peak_rate'], 3) : 'N/A') ?></td>
+                                    <td><?= htmlspecialchars($contract['shoulder_rate'] !== null ? number_format((float)$contract['shoulder_rate'], 3) : 'N/A') ?></td>
+                                    <td><?= htmlspecialchars($contract['off_peak_rate'] !== null ? number_format((float)$contract['off_peak_rate'], 3) : 'N/A') ?></td>
+                                    <td><?= htmlspecialchars(formatCurrency($contract['total_cost'] !== null ? (float)$contract['total_cost'] : null)) ?></td>
+                                    <td><?= htmlspecialchars($contract['diff_dollar'] !== null ? formatCurrency((float)$contract['diff_dollar']) : 'N/A') ?></td>
+                                    <td><?= htmlspecialchars($contract['diff_percentage'] !== null ? formatPercentage((float)$contract['diff_percentage']) : 'N/A') ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endforeach; ?>
 
-        <?php if (!empty($otherCosts)): ?>
-            <h3>Other Costs</h3>
-            <div class="table-scroll">
-                <table class="data-table">
-                    <thead>
-                    <tr>
-                        <th>Charges</th>
-                        <th>Cost</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <?php foreach ($otherCosts as $cost): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($cost['cost_label']) ?></td>
-                            <td><?= htmlspecialchars(formatCurrency((float)$cost['cost_amount'])) ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        <?php endif; ?>
-    </section>
+                <?php if (!empty($otherCosts)): ?>
+                    <h3>Other Costs</h3>
+                    <div class="table-scroll">
+                        <table class="data-table">
+                            <thead>
+                            <tr>
+                                <th>Charges</th>
+                                <th>Cost</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php foreach ($otherCosts as $cost): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($cost['cost_label']) ?></td>
+                                    <td><?= htmlspecialchars(formatCurrency((float)$cost['cost_amount'])) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
+            </section>
 
-    <section class="card">
-        <p class="disclaimer">Prices are indicative only.</p>
-        <h2>Next Steps / Actions</h2>
-        <ol>
-            <li>Secure the chosen retailer’s energy agreement.</li>
-            <li>Validate offer to ensure accuracy in energy rates and terms.</li>
-            <li>Supply a digital copy via DocuSign.</li>
-            <li>Submit signed agreement to retailer.</li>
-            <li>Confirm contract acceptance.</li>
-            <li>Manage transfer process.</li>
-        </ol>
-    </section>
-</main>
+            <section class="card">
+                <p class="disclaimer">Prices are indicative only.</p>
+                <h2>Next Steps / Actions</h2>
+                <ol>
+                    <li>Secure the chosen retailer’s energy agreement.</li>
+                    <li>Validate offer to ensure accuracy in energy rates and terms.</li>
+                    <li>Supply a digital copy via DocuSign.</li>
+                    <li>Submit signed agreement to retailer.</li>
+                    <li>Confirm contract acceptance.</li>
+                    <li>Manage transfer process.</li>
+                </ol>
+            </section>
+        </main>
+    </div>
+</div>
 
 <footer class="footer">
     <div class="container">

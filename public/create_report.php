@@ -1,8 +1,11 @@
 <?php
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/../includes/navigation.php';
 
 $pdo = getDbConnection();
+
+$activeNav = 'reports';
 
 $formData = [
     'report_identifier' => '',
@@ -229,179 +232,184 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </header>
 
-<main class="container">
-    <section class="card">
-        <?php if (!empty($errors)): ?>
-            <div class="alert alert--error">
-                <ul>
-                    <?php foreach ($errors as $error): ?>
-                        <li><?= htmlspecialchars($error) ?></li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-        <?php endif; ?>
+<div class="app-shell">
+    <?php renderSidebar($activeNav); ?>
+    <div class="app-content">
+        <main class="container">
+            <section class="card">
+                <?php if (!empty($errors)): ?>
+                    <div class="alert alert--error">
+                        <ul>
+                            <?php foreach ($errors as $error): ?>
+                                <li><?= htmlspecialchars($error) ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                <?php endif; ?>
 
-        <form method="post" class="form-grid">
-            <h2>Report Details</h2>
-            <label>Report ID
-                <input type="text" name="report_identifier" value="<?= htmlspecialchars($formData['report_identifier']) ?>" required>
-            </label>
-            <label>Report Date
-                <input type="date" name="report_date" value="<?= htmlspecialchars($formData['report_date']) ?>">
-            </label>
-            <label>Customer Business Name
-                <input type="text" name="customer_business_name" value="<?= htmlspecialchars($formData['customer_business_name']) ?>" required>
-            </label>
-            <label>Customer Contact Name
-                <input type="text" name="customer_contact_name" value="<?= htmlspecialchars($formData['customer_contact_name']) ?>">
-            </label>
-            <label>Broker Consultant
-                <input type="text" name="broker_consultant" value="<?= htmlspecialchars($formData['broker_consultant']) ?>">
-            </label>
+                <form method="post" class="form-grid">
+                    <h2>Report Details</h2>
+                    <label>Report ID
+                        <input type="text" name="report_identifier" value="<?= htmlspecialchars($formData['report_identifier']) ?>" required>
+                    </label>
+                    <label>Report Date
+                        <input type="date" name="report_date" value="<?= htmlspecialchars($formData['report_date']) ?>">
+                    </label>
+                    <label>Customer Business Name
+                        <input type="text" name="customer_business_name" value="<?= htmlspecialchars($formData['customer_business_name']) ?>" required>
+                    </label>
+                    <label>Customer Contact Name
+                        <input type="text" name="customer_contact_name" value="<?= htmlspecialchars($formData['customer_contact_name']) ?>">
+                    </label>
+                    <label>Broker Consultant
+                        <input type="text" name="broker_consultant" value="<?= htmlspecialchars($formData['broker_consultant']) ?>">
+                    </label>
 
-            <h2>Site Information</h2>
-            <label>NMI
-                <input type="text" name="site_nmi" value="<?= htmlspecialchars($formData['site_nmi']) ?>">
-            </label>
-            <label>Current Retailer
-                <input type="text" name="site_current_retailer" value="<?= htmlspecialchars($formData['site_current_retailer']) ?>">
-            </label>
-            <label>Contract End Date
-                <input type="date" name="site_contract_end_date" value="<?= htmlspecialchars($formData['site_contract_end_date']) ?>">
-            </label>
-            <label>Supply Address Line 1
-                <input type="text" name="site_address_line1" value="<?= htmlspecialchars($formData['site_address_line1']) ?>">
-            </label>
-            <label>Supply Address Line 2
-                <input type="text" name="site_address_line2" value="<?= htmlspecialchars($formData['site_address_line2']) ?>">
-            </label>
-            <label>Peak kWh
-                <input type="number" step="1" name="site_peak_kwh" value="<?= htmlspecialchars($formData['site_peak_kwh']) ?>">
-            </label>
-            <label>Shoulder kWh
-                <input type="number" step="1" name="site_shoulder_kwh" value="<?= htmlspecialchars($formData['site_shoulder_kwh']) ?>">
-            </label>
-            <label>Off Peak kWh
-                <input type="number" step="1" name="site_off_peak_kwh" value="<?= htmlspecialchars($formData['site_off_peak_kwh']) ?>">
-            </label>
-            <label>Total kWh
-                <input type="number" step="1" name="site_total_kwh" value="<?= htmlspecialchars($formData['site_total_kwh']) ?>">
-            </label>
+                    <h2>Site Information</h2>
+                    <label>NMI
+                        <input type="text" name="site_nmi" value="<?= htmlspecialchars($formData['site_nmi']) ?>">
+                    </label>
+                    <label>Current Retailer
+                        <input type="text" name="site_current_retailer" value="<?= htmlspecialchars($formData['site_current_retailer']) ?>">
+                    </label>
+                    <label>Contract End Date
+                        <input type="date" name="site_contract_end_date" value="<?= htmlspecialchars($formData['site_contract_end_date']) ?>">
+                    </label>
+                    <label>Supply Address Line 1
+                        <input type="text" name="site_address_line1" value="<?= htmlspecialchars($formData['site_address_line1']) ?>">
+                    </label>
+                    <label>Supply Address Line 2
+                        <input type="text" name="site_address_line2" value="<?= htmlspecialchars($formData['site_address_line2']) ?>">
+                    </label>
+                    <label>Peak kWh
+                        <input type="number" step="1" name="site_peak_kwh" value="<?= htmlspecialchars($formData['site_peak_kwh']) ?>">
+                    </label>
+                    <label>Shoulder kWh
+                        <input type="number" step="1" name="site_shoulder_kwh" value="<?= htmlspecialchars($formData['site_shoulder_kwh']) ?>">
+                    </label>
+                    <label>Off Peak kWh
+                        <input type="number" step="1" name="site_off_peak_kwh" value="<?= htmlspecialchars($formData['site_off_peak_kwh']) ?>">
+                    </label>
+                    <label>Total kWh
+                        <input type="number" step="1" name="site_total_kwh" value="<?= htmlspecialchars($formData['site_total_kwh']) ?>">
+                    </label>
 
-            <h2>Current Contract</h2>
-            <label>Current Retailer
-                <input type="text" name="contract_current_retailer" value="<?= htmlspecialchars($formData['contract_current_retailer']) ?>">
-            </label>
-            <label>Term (months)
-                <input type="number" step="1" name="contract_term_months" value="<?= htmlspecialchars($formData['contract_term_months']) ?>">
-            </label>
-            <label>Current Cost
-                <input type="text" name="current_cost" value="<?= htmlspecialchars($formData['current_cost']) ?>">
-            </label>
-            <label>New Cost
-                <input type="text" name="new_cost" value="<?= htmlspecialchars($formData['new_cost']) ?>">
-            </label>
-            <label>Validity Period
-                <input type="text" name="validity_period" value="<?= htmlspecialchars($formData['validity_period']) ?>">
-            </label>
-            <label>Payment Terms
-                <input type="text" name="payment_terms" value="<?= htmlspecialchars($formData['payment_terms']) ?>">
-            </label>
+                    <h2>Current Contract</h2>
+                    <label>Current Retailer
+                        <input type="text" name="contract_current_retailer" value="<?= htmlspecialchars($formData['contract_current_retailer']) ?>">
+                    </label>
+                    <label>Term (months)
+                        <input type="number" step="1" name="contract_term_months" value="<?= htmlspecialchars($formData['contract_term_months']) ?>">
+                    </label>
+                    <label>Current Cost
+                        <input type="text" name="current_cost" value="<?= htmlspecialchars($formData['current_cost']) ?>">
+                    </label>
+                    <label>New Cost
+                        <input type="text" name="new_cost" value="<?= htmlspecialchars($formData['new_cost']) ?>">
+                    </label>
+                    <label>Validity Period
+                        <input type="text" name="validity_period" value="<?= htmlspecialchars($formData['validity_period']) ?>">
+                    </label>
+                    <label>Payment Terms
+                        <input type="text" name="payment_terms" value="<?= htmlspecialchars($formData['payment_terms']) ?>">
+                    </label>
 
-            <h2>Contract Offers</h2>
-            <div class="table-scroll">
-                <table class="data-table">
-                    <thead>
-                    <tr>
-                        <th>Supplier</th>
-                        <th>Term (months)</th>
-                        <th>Peak Rate</th>
-                        <th>Shoulder Rate</th>
-                        <th>Off Peak Rate</th>
-                        <th>Total Cost</th>
-                        <th>$ Diff</th>
-                        <th>% Diff</th>
-                    </tr>
-                    </thead>
-                    <tbody id="contract-rows">
-                    <?php foreach ($contracts as $index => $contract): ?>
-                        <tr>
-                            <td><input type="text" name="contracts[<?= $index ?>][supplier_name]" value="<?= htmlspecialchars($contract['supplier_name'] ?? '') ?>"></td>
-                            <td>
-                                <select name="contracts[<?= $index ?>][term_months]">
-                                    <option value="">Select</option>
-                                    <?php foreach ([12, 24, 36] as $term): ?>
-                                        <option value="<?= $term ?>" <?= isset($contract['term_months']) && (int)$contract['term_months'] === $term ? 'selected' : '' ?>><?= $term ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </td>
-                            <td><input type="number" step="0.00001" name="contracts[<?= $index ?>][peak_rate]" value="<?= htmlspecialchars($contract['peak_rate'] ?? '') ?>"></td>
-                            <td><input type="number" step="0.00001" name="contracts[<?= $index ?>][shoulder_rate]" value="<?= htmlspecialchars($contract['shoulder_rate'] ?? '') ?>"></td>
-                            <td><input type="number" step="0.00001" name="contracts[<?= $index ?>][off_peak_rate]" value="<?= htmlspecialchars($contract['off_peak_rate'] ?? '') ?>"></td>
-                            <td><input type="text" name="contracts[<?= $index ?>][total_cost]" value="<?= htmlspecialchars($contract['total_cost'] ?? '') ?>"></td>
-                            <td><input type="text" name="contracts[<?= $index ?>][diff_dollar]" value="<?= htmlspecialchars($contract['diff_dollar'] ?? '') ?>"></td>
-                            <td><input type="number" step="0.01" name="contracts[<?= $index ?>][diff_percentage]" value="<?= htmlspecialchars($contract['diff_percentage'] ?? '') ?>"></td>
-                        </tr>
-                    <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-            <button type="button" class="button" onclick="addContractRow()">Add Contract Offer</button>
+                    <h2>Contract Offers</h2>
+                    <div class="table-scroll">
+                        <table class="data-table">
+                            <thead>
+                            <tr>
+                                <th>Supplier</th>
+                                <th>Term (months)</th>
+                                <th>Peak Rate</th>
+                                <th>Shoulder Rate</th>
+                                <th>Off Peak Rate</th>
+                                <th>Total Cost</th>
+                                <th>$ Diff</th>
+                                <th>% Diff</th>
+                            </tr>
+                            </thead>
+                            <tbody id="contract-rows">
+                            <?php foreach ($contracts as $index => $contract): ?>
+                                <tr>
+                                    <td><input type="text" name="contracts[<?= $index ?>][supplier_name]" value="<?= htmlspecialchars($contract['supplier_name'] ?? '') ?>"></td>
+                                    <td>
+                                        <select name="contracts[<?= $index ?>][term_months]">
+                                            <option value="">Select</option>
+                                            <?php foreach ([12, 24, 36] as $term): ?>
+                                                <option value="<?= $term ?>" <?= isset($contract['term_months']) && (int)$contract['term_months'] === $term ? 'selected' : '' ?>><?= $term ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </td>
+                                    <td><input type="number" step="0.00001" name="contracts[<?= $index ?>][peak_rate]" value="<?= htmlspecialchars($contract['peak_rate'] ?? '') ?>"></td>
+                                    <td><input type="number" step="0.00001" name="contracts[<?= $index ?>][shoulder_rate]" value="<?= htmlspecialchars($contract['shoulder_rate'] ?? '') ?>"></td>
+                                    <td><input type="number" step="0.00001" name="contracts[<?= $index ?>][off_peak_rate]" value="<?= htmlspecialchars($contract['off_peak_rate'] ?? '') ?>"></td>
+                                    <td><input type="text" name="contracts[<?= $index ?>][total_cost]" value="<?= htmlspecialchars($contract['total_cost'] ?? '') ?>"></td>
+                                    <td><input type="text" name="contracts[<?= $index ?>][diff_dollar]" value="<?= htmlspecialchars($contract['diff_dollar'] ?? '') ?>"></td>
+                                    <td><input type="number" step="0.01" name="contracts[<?= $index ?>][diff_percentage]" value="<?= htmlspecialchars($contract['diff_percentage'] ?? '') ?>"></td>
+                                </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <button type="button" class="button" onclick="addContractRow()">Add Contract Offer</button>
 
-            <h2>Other Costs</h2>
-            <div class="table-scroll">
-                <table class="data-table">
-                    <thead>
-                    <tr>
-                        <th>Description</th>
-                        <th>Amount</th>
-                    </tr>
-                    </thead>
-                    <tbody id="other-cost-rows">
-                    <?php foreach ($otherCosts as $index => $otherCost): ?>
-                        <tr>
-                            <td><input type="text" name="other_costs[<?= $index ?>][cost_label]" value="<?= htmlspecialchars($otherCost['cost_label'] ?? '') ?>"></td>
-                            <td><input type="text" name="other_costs[<?= $index ?>][cost_amount]" value="<?= htmlspecialchars($otherCost['cost_amount'] ?? '') ?>"></td>
-                        </tr>
-                    <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-            <button type="button" class="button" onclick="addOtherCostRow()">Add Other Cost</button>
+                    <h2>Other Costs</h2>
+                    <div class="table-scroll">
+                        <table class="data-table">
+                            <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th>Amount</th>
+                            </tr>
+                            </thead>
+                            <tbody id="other-cost-rows">
+                            <?php foreach ($otherCosts as $index => $otherCost): ?>
+                                <tr>
+                                    <td><input type="text" name="other_costs[<?= $index ?>][cost_label]" value="<?= htmlspecialchars($otherCost['cost_label'] ?? '') ?>"></td>
+                                    <td><input type="text" name="other_costs[<?= $index ?>][cost_amount]" value="<?= htmlspecialchars($otherCost['cost_amount'] ?? '') ?>"></td>
+                                </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <button type="button" class="button" onclick="addOtherCostRow()">Add Other Cost</button>
 
-            <div class="form-actions">
-                <button type="submit" class="button button--primary">Save Report</button>
-            </div>
-        </form>
-    </section>
-</main>
+                    <div class="form-actions">
+                        <button type="submit" class="button button--primary">Save Report</button>
+                    </div>
+                </form>
+            </section>
+        </main>
 
-<template id="contract-row-template">
-    <tr>
-        <td><input type="text" name="contracts[][supplier_name]"></td>
-        <td>
-            <select name="contracts[][term_months]">
-                <option value="">Select</option>
-                <option value="12">12</option>
-                <option value="24">24</option>
-                <option value="36">36</option>
-            </select>
-        </td>
-        <td><input type="number" step="0.00001" name="contracts[][peak_rate]"></td>
-        <td><input type="number" step="0.00001" name="contracts[][shoulder_rate]"></td>
-        <td><input type="number" step="0.00001" name="contracts[][off_peak_rate]"></td>
-        <td><input type="text" name="contracts[][total_cost]"></td>
-        <td><input type="text" name="contracts[][diff_dollar]"></td>
-        <td><input type="number" step="0.01" name="contracts[][diff_percentage]"></td>
-    </tr>
-</template>
+        <template id="contract-row-template">
+            <tr>
+                <td><input type="text" name="contracts[][supplier_name]"></td>
+                <td>
+                    <select name="contracts[][term_months]">
+                        <option value="">Select</option>
+                        <option value="12">12</option>
+                        <option value="24">24</option>
+                        <option value="36">36</option>
+                    </select>
+                </td>
+                <td><input type="number" step="0.00001" name="contracts[][peak_rate]"></td>
+                <td><input type="number" step="0.00001" name="contracts[][shoulder_rate]"></td>
+                <td><input type="number" step="0.00001" name="contracts[][off_peak_rate]"></td>
+                <td><input type="text" name="contracts[][total_cost]"></td>
+                <td><input type="text" name="contracts[][diff_dollar]"></td>
+                <td><input type="number" step="0.01" name="contracts[][diff_percentage]"></td>
+            </tr>
+        </template>
 
-<template id="other-cost-template">
-    <tr>
-        <td><input type="text" name="other_costs[][cost_label]"></td>
-        <td><input type="text" name="other_costs[][cost_amount]"></td>
-    </tr>
-</template>
+        <template id="other-cost-template">
+            <tr>
+                <td><input type="text" name="other_costs[][cost_label]"></td>
+                <td><input type="text" name="other_costs[][cost_amount]"></td>
+            </tr>
+        </template>
+    </div>
+</div>
 
 </body>
 </html>
