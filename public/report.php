@@ -94,6 +94,10 @@ $termHeadings = [
                 <td><?= htmlspecialchars($report['customer_contact_name'] ?? 'N/A') ?></td>
             </tr>
             <tr>
+                <th align="left">ABN</th>
+                <td><?php $customerAbn = trim((string)($report['customer_abn'] ?? '')); echo $customerAbn !== '' ? htmlspecialchars($customerAbn) : 'N/A'; ?></td>
+            </tr>
+            <tr>
                 <th align="left">Energy Consultant</th>
                 <td><?= htmlspecialchars($report['broker_consultant'] ?? 'N/A') ?></td>
             </tr>
