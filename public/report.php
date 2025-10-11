@@ -42,242 +42,172 @@ $termHeadings = [
     <title>Energy Report <?= htmlspecialchars($report['report_identifier']) ?></title>
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="report">
-<div class="report__stack">
-    <section class="report__page">
-        <header class="page__header">
-            <div class="page__titles">
-                <p class="page__label">Energy Price Comparison</p>
-                <h1>Customer Profile</h1>
-                <p class="page__reference">Report reference: <?= htmlspecialchars($report['report_identifier']) ?></p>
-            </div>
-            <dl class="page__summary">
-                <div>
-                    <dt>Client</dt>
-                    <dd><?= htmlspecialchars($report['customer_business_name']) ?></dd>
-                </div>
-                <div>
-                    <dt>Report Date</dt>
-                    <dd><?= htmlspecialchars(formatDisplayDate($report['report_date'])) ?></dd>
-                </div>
-                <div>
-                    <dt>Consultant</dt>
-                    <dd><?= htmlspecialchars($report['broker_consultant'] ?: 'Your Consultant') ?></dd>
-                </div>
-                <div>
-                    <dt>Contact</dt>
-                    <dd><?= htmlspecialchars($report['customer_contact_name'] ?? 'N/A') ?></dd>
-                </div>
-            </dl>
-        </header>
-
-        <main class="page__content">
-            <section class="section">
-                <h2>Business &amp; Site Details</h2>
-                <div class="info-grid">
-                    <div>
-                        <h3>Business Information</h3>
-                        <dl>
-                            <dt>Business Name</dt>
-                            <dd><?= htmlspecialchars($report['customer_business_name']) ?></dd>
-                            <dt>Contact Name</dt>
-                            <dd><?= htmlspecialchars($report['customer_contact_name'] ?? 'N/A') ?></dd>
-                            <dt>Energy Consultant</dt>
-                            <dd><?= htmlspecialchars($report['broker_consultant'] ?? 'N/A') ?></dd>
-                            <dt>Contract Term</dt>
-                            <dd><?= htmlspecialchars($report['contract_term_months'] !== null ? $report['contract_term_months'] . ' Months' : 'N/A') ?></dd>
-                        </dl>
-                    </div>
-                    <div>
-                        <h3>Site Information</h3>
-                        <dl>
-                            <dt>NMI</dt>
-                            <dd><?= htmlspecialchars($report['site_nmi'] ?? 'N/A') ?></dd>
-                            <dt>Supply Address</dt>
-                            <dd><?= nl2br(htmlspecialchars(trim(($report['site_address_line1'] ?? '') . "\n" . ($report['site_address_line2'] ?? '')))) ?></dd>
-                            <dt>Current Retailer</dt>
-                            <dd><?= htmlspecialchars($report['site_current_retailer'] ?? 'N/A') ?></dd>
-                            <dt>Contract End Date</dt>
-                            <dd><?= htmlspecialchars(formatDisplayDate($report['site_contract_end_date'])) ?></dd>
-                        </dl>
-                    </div>
-                </div>
-            </section>
-
-            <section class="section">
-                <h2>Consumption &amp; Costs</h2>
-                <div class="info-grid">
-                    <div>
-                        <h3>Annual Consumption</h3>
-                        <dl>
-                            <dt>Peak</dt>
-                            <dd><?= htmlspecialchars(formatKwh($report['site_peak_kwh'] !== null ? (float) $report['site_peak_kwh'] : null)) ?></dd>
-                            <dt>Shoulder</dt>
-                            <dd><?= htmlspecialchars(formatKwh($report['site_shoulder_kwh'] !== null ? (float) $report['site_shoulder_kwh'] : null)) ?></dd>
-                            <dt>Off Peak</dt>
-                            <dd><?= htmlspecialchars(formatKwh($report['site_off_peak_kwh'] !== null ? (float) $report['site_off_peak_kwh'] : null)) ?></dd>
-                            <dt>Total</dt>
-                            <dd><?= htmlspecialchars(formatKwh($report['site_total_kwh'] !== null ? (float) $report['site_total_kwh'] : null)) ?></dd>
-                        </dl>
-                    </div>
-                    <div>
-                        <h3>Cost Summary</h3>
-                        <dl>
-                            <dt>Current Cost</dt>
-                            <dd><?= htmlspecialchars(formatCurrency($report['current_cost'] !== null ? (float) $report['current_cost'] : null)) ?></dd>
-                            <dt>New Cost</dt>
-                            <dd><?= htmlspecialchars(formatCurrency($report['new_cost'] !== null ? (float) $report['new_cost'] : null)) ?></dd>
-                            <dt>Validity Period</dt>
-                            <dd><?= htmlspecialchars($report['validity_period'] ?? 'N/A') ?></dd>
-                            <dt>Payment Terms</dt>
-                            <dd><?= htmlspecialchars($report['payment_terms'] ?? 'N/A') ?></dd>
-                        </dl>
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <footer class="page__footer">
-            <p class="disclaimer">Prices are indicative only.</p>
-        </footer>
+<body class="report-document">
+<main>
+    <section class="page">
+        <h1>Energy Price Comparison</h1>
+        <p><strong>Report reference:</strong> <?= htmlspecialchars($report['report_identifier']) ?></p>
+        <p><strong>Prepared for:</strong> <?= htmlspecialchars($report['customer_business_name']) ?></p>
+        <p><strong>Report date:</strong> <?= htmlspecialchars(formatDisplayDate($report['report_date'])) ?></p>
+        <p><strong>Consultant:</strong> <?= htmlspecialchars($report['broker_consultant'] ?: 'Your Consultant') ?></p>
+        <p><strong>Primary contact:</strong> <?= htmlspecialchars($report['customer_contact_name'] ?? 'N/A') ?></p>
     </section>
 
-    <section class="report__page">
-        <header class="page__header">
-            <div class="page__titles">
-                <p class="page__label">Energy Price Comparison</p>
-                <h1>Price Comparison</h1>
-                <p class="page__reference">Report reference: <?= htmlspecialchars($report['report_identifier']) ?></p>
-            </div>
-            <dl class="page__summary">
-                <div>
-                    <dt>Client</dt>
-                    <dd><?= htmlspecialchars($report['customer_business_name']) ?></dd>
-                </div>
-                <div>
-                    <dt>Report Date</dt>
-                    <dd><?= htmlspecialchars(formatDisplayDate($report['report_date'])) ?></dd>
-                </div>
-                <div>
-                    <dt>Consultant</dt>
-                    <dd><?= htmlspecialchars($report['broker_consultant'] ?: 'Your Consultant') ?></dd>
-                </div>
-                <div>
-                    <dt>Contact</dt>
-                    <dd><?= htmlspecialchars($report['customer_contact_name'] ?? 'N/A') ?></dd>
-                </div>
-            </dl>
-        </header>
+    <section class="page">
+        <h2>Business &amp; Site Details</h2>
 
-        <main class="page__content">
-            <section class="section">
-                <?php foreach ($termHeadings as $term => $heading): ?>
-                    <?php if (!isset($contractsByTerm[$term])) { continue; } ?>
-                    <h2><?= $heading ?></h2>
-                    <div class="table-scroll">
-                        <table class="data-table">
-                            <thead>
-                            <tr>
-                                <th>Supplier</th>
-                                <th>P</th>
-                                <th>S</th>
-                                <th>O</th>
-                                <th>Total Costs</th>
-                                <th>$ Diff</th>
-                                <th>% Diff</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php foreach ($contractsByTerm[$term] as $contract): ?>
-                                <tr>
-                                    <td><?= htmlspecialchars($contract['supplier_name']) ?></td>
-                                    <td><?= htmlspecialchars($contract['peak_rate'] !== null ? number_format((float)$contract['peak_rate'], 3) : 'N/A') ?></td>
-                                    <td><?= htmlspecialchars($contract['shoulder_rate'] !== null ? number_format((float)$contract['shoulder_rate'], 3) : 'N/A') ?></td>
-                                    <td><?= htmlspecialchars($contract['off_peak_rate'] !== null ? number_format((float)$contract['off_peak_rate'], 3) : 'N/A') ?></td>
-                                    <td><?= htmlspecialchars(formatCurrency($contract['total_cost'] !== null ? (float)$contract['total_cost'] : null)) ?></td>
-                                    <td><?= htmlspecialchars($contract['diff_dollar'] !== null ? formatCurrency((float)$contract['diff_dollar']) : 'N/A') ?></td>
-                                    <td><?= htmlspecialchars($contract['diff_percentage'] !== null ? formatPercentage((float)$contract['diff_percentage']) : 'N/A') ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
+        <h3>Business Information</h3>
+        <table border="1" cellspacing="0" cellpadding="6">
+            <tbody>
+            <tr>
+                <th align="left">Business Name</th>
+                <td><?= htmlspecialchars($report['customer_business_name']) ?></td>
+            </tr>
+            <tr>
+                <th align="left">Contact Name</th>
+                <td><?= htmlspecialchars($report['customer_contact_name'] ?? 'N/A') ?></td>
+            </tr>
+            <tr>
+                <th align="left">Energy Consultant</th>
+                <td><?= htmlspecialchars($report['broker_consultant'] ?? 'N/A') ?></td>
+            </tr>
+            <tr>
+                <th align="left">Contract Term</th>
+                <td><?= htmlspecialchars($report['contract_term_months'] !== null ? $report['contract_term_months'] . ' Months' : 'N/A') ?></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3>Site Information</h3>
+        <table border="1" cellspacing="0" cellpadding="6">
+            <tbody>
+            <tr>
+                <th align="left">NMI</th>
+                <td><?= htmlspecialchars($report['site_nmi'] ?? 'N/A') ?></td>
+            </tr>
+            <tr>
+                <th align="left">Supply Address</th>
+                <td><?= nl2br(htmlspecialchars(trim(($report['site_address_line1'] ?? '') . "\n" . ($report['site_address_line2'] ?? '')))) ?></td>
+            </tr>
+            <tr>
+                <th align="left">Current Retailer</th>
+                <td><?= htmlspecialchars($report['site_current_retailer'] ?? 'N/A') ?></td>
+            </tr>
+            <tr>
+                <th align="left">Contract End Date</th>
+                <td><?= htmlspecialchars(formatDisplayDate($report['site_contract_end_date'])) ?></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3>Consumption &amp; Costs</h3>
+        <table border="1" cellspacing="0" cellpadding="6">
+            <tbody>
+            <tr>
+                <th align="left">Peak Consumption (kWh)</th>
+                <td><?= htmlspecialchars(formatKwh($report['site_peak_kwh'] !== null ? (float) $report['site_peak_kwh'] : null)) ?></td>
+            </tr>
+            <tr>
+                <th align="left">Shoulder Consumption (kWh)</th>
+                <td><?= htmlspecialchars(formatKwh($report['site_shoulder_kwh'] !== null ? (float) $report['site_shoulder_kwh'] : null)) ?></td>
+            </tr>
+            <tr>
+                <th align="left">Off Peak Consumption (kWh)</th>
+                <td><?= htmlspecialchars(formatKwh($report['site_off_peak_kwh'] !== null ? (float) $report['site_off_peak_kwh'] : null)) ?></td>
+            </tr>
+            <tr>
+                <th align="left">Total Consumption (kWh)</th>
+                <td><?= htmlspecialchars(formatKwh($report['site_total_kwh'] !== null ? (float) $report['site_total_kwh'] : null)) ?></td>
+            </tr>
+            <tr>
+                <th align="left">Current Cost</th>
+                <td><?= htmlspecialchars(formatCurrency($report['current_cost'] !== null ? (float) $report['current_cost'] : null)) ?></td>
+            </tr>
+            <tr>
+                <th align="left">Proposed Cost</th>
+                <td><?= htmlspecialchars(formatCurrency($report['new_cost'] !== null ? (float) $report['new_cost'] : null)) ?></td>
+            </tr>
+            <tr>
+                <th align="left">Validity Period</th>
+                <td><?= htmlspecialchars($report['validity_period'] ?? 'N/A') ?></td>
+            </tr>
+            <tr>
+                <th align="left">Payment Terms</th>
+                <td><?= htmlspecialchars($report['payment_terms'] ?? 'N/A') ?></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="page">
+        <h2>Price Comparison</h2>
+        <?php foreach ($termHeadings as $term => $heading): ?>
+            <?php if (!isset($contractsByTerm[$term])) { continue; } ?>
+            <h3><?= $heading ?></h3>
+            <table border="1" cellspacing="0" cellpadding="6">
+                <thead>
+                <tr>
+                    <th align="left">Supplier</th>
+                    <th align="left">P</th>
+                    <th align="left">S</th>
+                    <th align="left">O</th>
+                    <th align="left">Total Costs</th>
+                    <th align="left">$ Diff</th>
+                    <th align="left">% Diff</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($contractsByTerm[$term] as $contract): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($contract['supplier_name']) ?></td>
+                        <td><?= htmlspecialchars($contract['peak_rate'] !== null ? number_format((float)$contract['peak_rate'], 3) : 'N/A') ?></td>
+                        <td><?= htmlspecialchars($contract['shoulder_rate'] !== null ? number_format((float)$contract['shoulder_rate'], 3) : 'N/A') ?></td>
+                        <td><?= htmlspecialchars($contract['off_peak_rate'] !== null ? number_format((float)$contract['off_peak_rate'], 3) : 'N/A') ?></td>
+                        <td><?= htmlspecialchars(formatCurrency($contract['total_cost'] !== null ? (float)$contract['total_cost'] : null)) ?></td>
+                        <td><?= htmlspecialchars($contract['diff_dollar'] !== null ? formatCurrency((float)$contract['diff_dollar']) : 'N/A') ?></td>
+                        <td><?= htmlspecialchars($contract['diff_percentage'] !== null ? formatPercentage((float)$contract['diff_percentage']) : 'N/A') ?></td>
+                    </tr>
                 <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endforeach; ?>
 
-                <?php if (!empty($otherCosts)): ?>
-                    <h2>Other Costs</h2>
-                    <div class="table-scroll">
-                        <table class="data-table">
-                            <thead>
-                            <tr>
-                                <th>Charges</th>
-                                <th>Cost</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php foreach ($otherCosts as $cost): ?>
-                                <tr>
-                                    <td><?= htmlspecialchars($cost['cost_label']) ?></td>
-                                    <td><?= htmlspecialchars(formatCurrency((float)$cost['cost_amount'])) ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                <?php endif; ?>
-            </section>
-        </main>
+        <?php if (!empty($otherCosts)): ?>
+            <h3>Other Costs</h3>
+            <table border="1" cellspacing="0" cellpadding="6">
+                <thead>
+                <tr>
+                    <th align="left">Charges</th>
+                    <th align="left">Cost</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($otherCosts as $cost): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($cost['cost_label']) ?></td>
+                        <td><?= htmlspecialchars(formatCurrency((float)$cost['cost_amount'])) ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
 
-        <footer class="page__footer">
-            <p class="disclaimer">Prices are indicative only.</p>
-        </footer>
+        <p><small>Prices are indicative only.</small></p>
     </section>
 
-    <section class="report__page">
-        <header class="page__header">
-            <div class="page__titles">
-                <p class="page__label">Energy Price Comparison</p>
-                <h1>Next Steps / Actions</h1>
-                <p class="page__reference">Report reference: <?= htmlspecialchars($report['report_identifier']) ?></p>
-            </div>
-            <dl class="page__summary">
-                <div>
-                    <dt>Client</dt>
-                    <dd><?= htmlspecialchars($report['customer_business_name']) ?></dd>
-                </div>
-                <div>
-                    <dt>Report Date</dt>
-                    <dd><?= htmlspecialchars(formatDisplayDate($report['report_date'])) ?></dd>
-                </div>
-                <div>
-                    <dt>Consultant</dt>
-                    <dd><?= htmlspecialchars($report['broker_consultant'] ?: 'Your Consultant') ?></dd>
-                </div>
-                <div>
-                    <dt>Contact</dt>
-                    <dd><?= htmlspecialchars($report['customer_contact_name'] ?? 'N/A') ?></dd>
-                </div>
-            </dl>
-        </header>
+    <section class="page">
+        <h2>Next Steps / Actions</h2>
+        <ol>
+            <li>Secure the chosen retailer’s energy agreement.</li>
+            <li>Validate offer to ensure accuracy in energy rates and terms.</li>
+            <li>Supply a digital copy via DocuSign.</li>
+            <li>Submit signed agreement to retailer.</li>
+            <li>Confirm contract acceptance.</li>
+            <li>Manage transfer process.</li>
+        </ol>
 
-        <main class="page__content">
-            <section class="section">
-                <h2>Key Actions</h2>
-                <ol class="steps-list">
-                    <li>Secure the chosen retailer’s energy agreement.</li>
-                    <li>Validate offer to ensure accuracy in energy rates and terms.</li>
-                    <li>Supply a digital copy via DocuSign.</li>
-                    <li>Submit signed agreement to retailer.</li>
-                    <li>Confirm contract acceptance.</li>
-                    <li>Manage transfer process.</li>
-                </ol>
-            </section>
-        </main>
-
-        <footer class="page__footer">
-            <p class="disclaimer">Prices are indicative only.</p>
-        </footer>
+        <p><small>Prices are indicative only.</small></p>
     </section>
-</div>
+</main>
 </body>
 </html>

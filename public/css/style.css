@@ -19,198 +19,25 @@ body {
     color: var(--text);
 }
 
-body.report {
-    background: #d5d7db;
-    display: flex;
-    justify-content: center;
-    padding: 2.5rem 0;
-    min-height: 100vh;
-    overflow-y: auto;
-    font-family: "Calibri", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    color: #111827;
-}
-
-.report__stack {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2.5rem;
-    width: 100%;
-}
-
-.report__page {
-    width: 210mm;
-    min-height: 297mm;
+body.report-document {
+    font-family: Arial, sans-serif;
     background: #ffffff;
-    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
-    display: flex;
-    flex-direction: column;
-    padding: 25mm;
-}
-
-.report__page:not(:last-child) {
-    page-break-after: always;
-}
-
-.page__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    border-bottom: 1px solid #e5e7eb;
-    padding-bottom: 12mm;
-    margin-bottom: 12mm;
-}
-
-.page__titles {
-    max-width: 60%;
-}
-
-.page__label {
-    margin: 0 0 4mm;
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #6b7280;
-}
-
-.page__titles h1 {
+    color: #000000;
     margin: 0;
-    font-size: 1.8rem;
-    font-weight: 600;
-    color: #111827;
+    padding: 20px;
 }
 
-.page__reference {
-    margin: 6mm 0 0;
-    font-size: 0.95rem;
-    color: #4b5563;
+.report-document main {
+    max-width: 210mm;
+    margin: 0 auto;
 }
 
-.page__summary {
-    margin: 0;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 6mm 14mm;
+.report-document .page {
+    margin-bottom: 40px;
 }
 
-.page__summary dt {
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #6b7280;
-    margin-bottom: 2mm;
-}
-
-.page__summary dd {
-    margin: 0;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #111827;
-}
-
-.page__content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 14mm;
-}
-
-.section h2 {
-    margin: 0 0 8mm;
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #1f2937;
-}
-
-.section h3 {
-    margin: 0 0 5mm;
-    font-size: 1rem;
-    font-weight: 600;
-    color: #111827;
-}
-
-.info-grid {
-    display: grid;
-    gap: 12mm;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-}
-
-.info-grid dl,
-.steps-list {
-    margin: 0;
-    padding: 0;
-}
-
-dl dt {
-    font-weight: 600;
-    font-size: 0.8rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: #6b7280;
-    margin-bottom: 2mm;
-}
-
-dl dd {
-    margin: 0 0 8mm;
-    font-size: 0.95rem;
-    color: #111827;
-}
-
-.steps-list {
-    padding-left: 1.1rem;
-    line-height: 1.6;
-}
-
-.steps-list li {
-    margin-bottom: 4mm;
-}
-
-.report .data-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 6mm;
-    font-size: 0.95rem;
-}
-
-.report .data-table th,
-.report .data-table td {
-    padding: 0.55rem 0.65rem;
-    border: 1px solid #d1d5db;
-    text-align: left;
-    white-space: nowrap;
-}
-
-.report .data-table th {
-    background: #f3f4f6;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #374151;
-}
-
-.report .data-table tbody tr:nth-child(even) {
-    background: #fbfbfb;
-}
-
-.page__footer {
-    margin-top: auto;
-    padding-top: 10mm;
-    border-top: 1px solid #d1d5db;
-    background: #f3f4f6;
-    padding-bottom: 6mm;
-    padding-left: 6mm;
-    padding-right: 6mm;
-}
-
-.disclaimer {
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #6b7280;
-    margin: 0;
+.report-document .page:last-of-type {
+    margin-bottom: 0;
 }
 
 .container {
@@ -357,7 +184,7 @@ dl dd {
 @media print {
     @page {
         size: A4;
-        margin: 0;
+        margin: 20mm;
     }
 
     body {
@@ -369,35 +196,20 @@ dl dd {
         display: none !important;
     }
 
-    body.report {
+    body.report-document {
         padding: 0;
-        min-height: auto;
     }
 
-    .report__stack {
-        gap: 0;
+    .report-document main {
+        max-width: none;
     }
 
-    .report__page {
-        width: 100%;
-        min-height: auto;
-        box-shadow: none;
-        border: none;
-        padding: 18mm;
-        border-radius: 0;
-    }
-
-    .report__page:not(:last-child) {
+    .report-document .page {
+        margin: 0;
         page-break-after: always;
     }
 
-    .page__footer {
-        background: transparent;
-        padding-left: 0;
-        padding-right: 0;
-    }
-
-    .table-scroll {
-        overflow: visible;
+    .report-document .page:last-of-type {
+        page-break-after: auto;
     }
 }
