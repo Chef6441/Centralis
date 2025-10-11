@@ -43,6 +43,14 @@ $termHeadings = [
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="report-document">
+<div class="report-actions">
+    <a class="button button--link" href="index.php">Back to Reports</a>
+    <a class="button button--link" href="edit_report.php?id=<?= urlencode($reportId) ?>">Edit Report</a>
+    <form method="post" action="delete_report.php" onsubmit="return confirm('Delete this report? This action cannot be undone.');">
+        <input type="hidden" name="id" value="<?= htmlspecialchars((string) $reportId) ?>">
+        <button type="submit" class="button button--link button--danger">Delete Report</button>
+    </form>
+</div>
 <main>
     <section class="page">
         <h1>Energy Price Comparison</h1>
