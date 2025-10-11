@@ -43,6 +43,7 @@ $termHeadings = [
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="report-document">
+<?php include __DIR__ . '/../includes/navbar.php'; ?>
 <main>
     <section class="page">
         <h1>Energy Price Comparison</h1>
