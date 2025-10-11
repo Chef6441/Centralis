@@ -220,12 +220,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 <header>
-    <div>
-        <h1>Create Energy Report</h1>
-        <nav>
-            <a href="index.php">Back to Reports</a>
-        </nav>
-    </div>
+    <nav>
+        <a href="index.php">Dashboard</a> |
+        <a href="#">Accounts</a> |
+        <a href="create_report.php">Reports</a> |
+        <a href="#">Billing</a> |
+        <a href="#">Tasks</a> |
+        <a href="#">Settings</a>
+    </nav>
+    <h1>Create Energy Report</h1>
 </header>
 
 <main>

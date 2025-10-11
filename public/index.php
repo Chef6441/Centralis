@@ -16,10 +16,18 @@ $reports = $statement ? $statement->fetchAll(PDO::FETCH_ASSOC) : [];
 <header>
     <div>
         <h1>Centralis</h1>
-        <nav>
-            <a href="create_report.php">Create Report</a>
-        </nav>
     </div>
+    <nav>
+        <a href="index.php">Dashboard</a> |
+        <a href="#">Accounts</a> |
+        <a href="create_report.php">Reports</a> |
+        <a href="#">Billing</a> |
+        <a href="#">Tasks</a> |
+        <a href="#">Settings</a>
+    </nav>
+    <nav>
+        <a href="create_report.php">Create Report</a>
+    </nav>
 </header>
 
 <main>

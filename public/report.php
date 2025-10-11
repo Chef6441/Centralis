@@ -42,6 +42,16 @@ $termHeadings = [
     <title>Energy Report <?= htmlspecialchars($report['report_identifier']) ?></title>
 </head>
 <body>
+<header>
+    <nav>
+        <a href="index.php">Dashboard</a> |
+        <a href="#">Accounts</a> |
+        <a href="create_report.php">Reports</a> |
+        <a href="#">Billing</a> |
+        <a href="#">Tasks</a> |
+        <a href="#">Settings</a>
+    </nav>
+</header>
 <main>
     <section>
         <h1>Energy Price Comparison</h1>
