@@ -1,18 +1,17 @@
 INSERT INTO companies (
     name,
-    company_type,
     contact_name,
     contact_email,
     contact_phone,
     address
 ) VALUES
-    ('GoBrokerage', 'broker', 'GoBrokerage Team', 'hello@gobrokerage.com', '+61 2 0000 0000', NULL),
-    ('Energy Referral Partners', 'partner', 'Jordan Matthews', 'jordan@energyreferralpartners.com.au', '+61 2 9999 1111', NULL),
-    ('Momentum Energy', 'supplier', NULL, 'support@momentum.com.au', '+61 3 1234 5678', 'Melbourne, VIC'),
-    ('Energy Australia', 'supplier', NULL, 'service@energyaustralia.com.au', '+61 3 9876 5432', 'Melbourne, VIC'),
-    ('Supplier 3', 'supplier', NULL, 'sales@supplier3.com.au', '+61 2 2468 1357', 'Sydney, NSW'),
-    ('Discover 202 Pty Ltd', 'client', 'Nelsy Zreik', 'nelsy@discover202.com.au', '+61 2 8888 0000', 'Unit 12, 28 Logistics Drive, Erskine Park, NSW 2759'),
-    ('Direct Industries Pty Ltd', 'client', 'Jamie Lee', 'jamie.lee@directindustries.com.au', '+61 3 7777 5555', '45 Market Street, Melbourne, VIC 3000');
+    ('GoBrokerage', 'GoBrokerage Team', 'hello@gobrokerage.com', '+61 2 0000 0000', NULL),
+    ('Energy Referral Partners', 'Jordan Matthews', 'jordan@energyreferralpartners.com.au', '+61 2 9999 1111', NULL),
+    ('Momentum Energy', NULL, 'support@momentum.com.au', '+61 3 1234 5678', 'Melbourne, VIC'),
+    ('Energy Australia', NULL, 'service@energyaustralia.com.au', '+61 3 9876 5432', 'Melbourne, VIC'),
+    ('Supplier 3', NULL, 'sales@supplier3.com.au', '+61 2 2468 1357', 'Sydney, NSW'),
+    ('Discover 202 Pty Ltd', 'Nelsy Zreik', 'nelsy@discover202.com.au', '+61 2 8888 0000', 'Unit 12, 28 Logistics Drive, Erskine Park, NSW 2759'),
+    ('Direct Industries Pty Ltd', 'Jamie Lee', 'jamie.lee@directindustries.com.au', '+61 3 7777 5555', '45 Market Street, Melbourne, VIC 3000');
 
 INSERT INTO brokers (company_id)
 VALUES (

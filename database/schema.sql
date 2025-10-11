@@ -13,7 +13,6 @@ DROP TABLE IF EXISTS reports;
 CREATE TABLE companies (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL UNIQUE,
-    company_type TEXT NOT NULL CHECK (company_type IN ('broker', 'supplier', 'partner', 'client')),
     contact_name TEXT,
     contact_email TEXT,
     contact_phone TEXT,
