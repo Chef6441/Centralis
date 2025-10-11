@@ -64,6 +64,13 @@ $termHeadings = [
         <p><strong>Report date:</strong> <?= htmlspecialchars(formatDisplayDate($report['report_date'])) ?></p>
         <p><strong>Consultant:</strong> <?= htmlspecialchars($report['broker_consultant'] ?: 'Your Consultant') ?></p>
         <p><strong>Primary contact:</strong> <?= htmlspecialchars($report['customer_contact_name'] ?? 'N/A') ?></p>
+        <div>
+            <a href="edit_report.php?id=<?= urlencode($reportId) ?>">Edit report</a>
+            <form action="delete_report.php" method="post" style="display:inline" onsubmit="return confirm('Delete this report?');">
+                <input type="hidden" name="id" value="<?= htmlspecialchars($reportId) ?>">
+                <button type="submit">Delete</button>
+            </form>
+        </div>
     </section>
 
     <section>

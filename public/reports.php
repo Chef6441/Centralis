@@ -43,7 +43,7 @@ $reports = $statement ? $statement->fetchAll(PDO::FETCH_ASSOC) : [];
                         <th>ID</th>
                         <th>Business Name</th>
                         <th>Report Date</th>
-                        <th></th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -52,7 +52,15 @@ $reports = $statement ? $statement->fetchAll(PDO::FETCH_ASSOC) : [];
                         <td><?= htmlspecialchars($report['report_identifier']) ?></td>
                         <td><?= htmlspecialchars($report['customer_business_name']) ?></td>
                         <td><?= htmlspecialchars($report['report_date']) ?></td>
-                        <td><a href="report.php?id=<?= urlencode($report['id']) ?>">View</a></td>
+                        <td>
+                            <a href="report.php?id=<?= urlencode($report['id']) ?>">View</a> |
+                            <a href="edit_report.php?id=<?= urlencode($report['id']) ?>">Edit</a>
+                            |
+                            <form action="delete_report.php" method="post" style="display:inline" onsubmit="return confirm('Delete this report?');">
+                                <input type="hidden" name="id" value="<?= htmlspecialchars($report['id']) ?>">
+                                <button type="submit">Delete</button>
+                            </form>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
