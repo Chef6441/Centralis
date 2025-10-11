@@ -10,10 +10,13 @@ $reports = $statement ? $statement->fetchAll(PDO::FETCH_ASSOC) : [];
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Centralis Energy Reports</title>
+    <title>Centralis</title>
 </head>
 <body>
 <header>
+    <div>
+        <h1>Centralis</h1>
+    </div>
     <nav>
         <a href="index.php">Dashboard</a> |
         <a href="#">Accounts</a> |
@@ -22,7 +25,9 @@ $reports = $statement ? $statement->fetchAll(PDO::FETCH_ASSOC) : [];
         <a href="#">Tasks</a> |
         <a href="#">Settings</a>
     </nav>
-    <h1>Centralis Energy Reports</h1>
+    <nav>
+        <a href="create_report.php">Create Report</a>
+    </nav>
 </header>
 
 <main>
