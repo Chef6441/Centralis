@@ -237,7 +237,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 <header>
-    <nav>
+    <nav class="navbar-main">
         <a href="index.php">Dashboard</a> |
         <a href="#">Accounts</a> |
         <a href="reports.php">Reports</a> |
@@ -246,9 +246,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <a href="#">Settings</a>
     </nav>
     <br>
-    <nav>
-        <a href="create_report.php">Create Report</a> |
-        <a href="report.php?id=<?= urlencode($reportId) ?>">View Report</a>
+    <nav class="navbar-sub">
+        <a href="report.php?id=<?= urlencode($reportId) ?>">View Report</a> |
+        <a href="reports.php">Back to Reports</a>
     </nav>
     <h1>Edit Energy Report</h1>
 </header>
