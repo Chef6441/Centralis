@@ -40,11 +40,10 @@ $termHeadings = [
 <head>
     <meta charset="UTF-8">
     <title>Energy Report <?= htmlspecialchars($report['report_identifier']) ?></title>
-    <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="report-document">
+<body>
 <main>
-    <section class="page">
+    <section>
         <h1>Energy Price Comparison</h1>
         <p><strong>Report reference:</strong> <?= htmlspecialchars($report['report_identifier']) ?></p>
         <p><strong>Prepared for:</strong> <?= htmlspecialchars($report['customer_business_name']) ?></p>
@@ -53,7 +52,7 @@ $termHeadings = [
         <p><strong>Primary contact:</strong> <?= htmlspecialchars($report['customer_contact_name'] ?? 'N/A') ?></p>
     </section>
 
-    <section class="page">
+    <section>
         <h2>Business &amp; Site Details</h2>
 
         <h3>Business Information</h3>
@@ -139,7 +138,7 @@ $termHeadings = [
         </table>
     </section>
 
-    <section class="page">
+    <section>
         <h2>Price Comparison</h2>
         <?php foreach ($termHeadings as $term => $heading): ?>
             <?php if (!isset($contractsByTerm[$term])) { continue; } ?>
@@ -195,7 +194,7 @@ $termHeadings = [
         <p><small>Prices are indicative only.</small></p>
     </section>
 
-    <section class="page">
+    <section>
         <h2>Next Steps / Actions</h2>
         <ol>
             <li>Secure the chosen retailer’s energy agreement.</li>

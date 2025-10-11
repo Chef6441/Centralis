@@ -11,25 +11,24 @@ $reports = $statement ? $statement->fetchAll(PDO::FETCH_ASSOC) : [];
 <head>
     <meta charset="UTF-8">
     <title>Centralis Energy Reports</title>
-    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<header class="top-bar">
-    <div class="container">
+<header>
+    <div>
         <h1>Centralis Energy Reports</h1>
         <nav>
-            <a class="button" href="create_report.php">Create Report</a>
+            <a href="create_report.php">Create Report</a>
         </nav>
     </div>
 </header>
 
-<main class="container">
-    <section class="card">
+<main>
+    <section>
         <h2>Existing Reports</h2>
         <?php if (empty($reports)): ?>
             <p>No reports have been created yet. <a href="create_report.php">Create your first report</a>.</p>
         <?php else: ?>
-            <table class="data-table">
+            <table>
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -44,7 +43,7 @@ $reports = $statement ? $statement->fetchAll(PDO::FETCH_ASSOC) : [];
                         <td><?= htmlspecialchars($report['report_identifier']) ?></td>
                         <td><?= htmlspecialchars($report['customer_business_name']) ?></td>
                         <td><?= htmlspecialchars($report['report_date']) ?></td>
-                        <td><a class="button button--link" href="report.php?id=<?= urlencode($report['id']) ?>">View</a></td>
+                        <td><a href="report.php?id=<?= urlencode($report['id']) ?>">View</a></td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
@@ -53,8 +52,8 @@ $reports = $statement ? $statement->fetchAll(PDO::FETCH_ASSOC) : [];
     </section>
 </main>
 
-<footer class="footer">
-    <div class="container">
+<footer>
+    <div>
         <p>&copy; <?= date('Y') ?> Centralis</p>
     </div>
 </footer>

@@ -202,7 +202,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Create Energy Report</title>
-    <link rel="stylesheet" href="css/style.css">
     <script>
         function addContractRow() {
             const template = document.getElementById('contract-row-template');
@@ -220,19 +219,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </script>
 </head>
 <body>
-<header class="top-bar">
-    <div class="container">
+<header>
+    <div>
         <h1>Create Energy Report</h1>
         <nav>
-            <a class="button" href="index.php">Back to Reports</a>
+            <a href="index.php">Back to Reports</a>
         </nav>
     </div>
 </header>
 
-<main class="container">
-    <section class="card">
+<main>
+    <section>
         <?php if (!empty($errors)): ?>
-            <div class="alert alert--error">
+            <div>
                 <ul>
                     <?php foreach ($errors as $error): ?>
                         <li><?= htmlspecialchars($error) ?></li>
@@ -241,7 +240,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php endif; ?>
 
-        <form method="post" class="form-grid">
+        <form method="post">
             <h2>Report Details</h2>
             <label>Report ID
                 <input type="text" name="report_identifier" value="<?= htmlspecialchars($formData['report_identifier']) ?>" required>
@@ -309,8 +308,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </label>
 
             <h2>Contract Offers</h2>
-            <div class="table-scroll">
-                <table class="data-table">
+            <div>
+                <table>
                     <thead>
                     <tr>
                         <th>Supplier</th>
@@ -346,11 +345,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </tbody>
                 </table>
             </div>
-            <button type="button" class="button" onclick="addContractRow()">Add Contract Offer</button>
+            <button type="button" onclick="addContractRow()">Add Contract Offer</button>
 
             <h2>Other Costs</h2>
-            <div class="table-scroll">
-                <table class="data-table">
+            <div>
+                <table>
                     <thead>
                     <tr>
                         <th>Description</th>
@@ -367,10 +366,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </tbody>
                 </table>
             </div>
-            <button type="button" class="button" onclick="addOtherCostRow()">Add Other Cost</button>
+            <button type="button" onclick="addOtherCostRow()">Add Other Cost</button>
 
-            <div class="form-actions">
-                <button type="submit" class="button button--primary">Save Report</button>
+            <div>
+                <button type="submit">Save Report</button>
             </div>
         </form>
     </section>
