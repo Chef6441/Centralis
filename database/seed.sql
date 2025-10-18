@@ -50,32 +50,178 @@ INSERT INTO clients (
         (SELECT id FROM companies WHERE name = 'Direct Industries Pty Ltd')
     );
 
-INSERT INTO contracts (
-    supplier_id,
-    broker_id,
+INSERT INTO deal (
     client_id,
+    deal_type,
+    reference
+) VALUES
+    (
+        (SELECT cl.id FROM clients cl JOIN companies c ON c.id = cl.company_id WHERE c.name = 'Discover 202 Pty Ltd'),
+        'SME',
+        'DISC-2024'
+    ),
+    (
+        (SELECT cl.id FROM clients cl JOIN companies c ON c.id = cl.company_id WHERE c.name = 'Direct Industries Pty Ltd'),
+        'C&I',
+        'DIRECT-2024'
+    );
+
+INSERT INTO site (
+    deal_id,
+    name,
+    address_line1,
+    address_line2,
+    city,
+    state,
+    postcode
+) VALUES
+    (
+        (SELECT id FROM deal WHERE reference = 'DISC-2024'),
+        'Discover Logistics Hub',
+        'Unit 12, 28 Logistics Drive',
+        'Building A',
+        'Erskine Park',
+        'NSW',
+        '2759'
+    ),
+    (
+        (SELECT id FROM deal WHERE reference = 'DIRECT-2024'),
+        'Direct Industries HQ',
+        '45 Market Street',
+        'Level 10',
+        'Melbourne',
+        'VIC',
+        '3000'
+    );
+
+INSERT INTO nmi (
+    site_id,
+    identifier
+) VALUES
+    (
+        (SELECT id FROM site WHERE name = 'Discover Logistics Hub'),
+        '41039619655'
+    ),
+    (
+        (SELECT id FROM site WHERE name = 'Direct Industries HQ'),
+        '62012345678'
+    );
+
+INSERT INTO contract (
+    client_id,
+    supplier_id,
     contract_start_date,
     contract_end_date,
     contract_value,
-    status
+    commission_rate,
+    commission_amount
 ) VALUES
     (
+        (SELECT cl.id FROM clients cl JOIN companies c ON c.id = cl.company_id WHERE c.name = 'Discover 202 Pty Ltd'),
         (SELECT s.id FROM suppliers s JOIN companies c ON c.id = s.company_id WHERE c.name = 'Momentum Energy'),
-        (SELECT b.id FROM brokers b JOIN companies c ON c.id = b.company_id WHERE c.name = 'GoBrokerage'),
-        (SELECT cl.id FROM clients cl JOIN companies c ON c.id = cl.company_id WHERE c.name = 'Discover 202 Pty Ltd'),
-        '2024-10-01',
-        '2026-09-30',
-        7200,
-        'Active'
-    ),
-    (
-        (SELECT s.id FROM suppliers s JOIN companies c ON c.id = s.company_id WHERE c.name = 'Energy Australia'),
-        (SELECT b.id FROM brokers b JOIN companies c ON c.id = b.company_id WHERE c.name = 'GoBrokerage'),
-        (SELECT cl.id FROM clients cl JOIN companies c ON c.id = cl.company_id WHERE c.name = 'Discover 202 Pty Ltd'),
         '2023-10-01',
         '2024-09-30',
         7850,
-        'Expired'
+        0.05,
+        392.5
+    ),
+    (
+        (SELECT cl.id FROM clients cl JOIN companies c ON c.id = cl.company_id WHERE c.name = 'Direct Industries Pty Ltd'),
+        (SELECT s.id FROM suppliers s JOIN companies c ON c.id = s.company_id WHERE c.name = 'Energy Australia'),
+        '2024-07-01',
+        '2025-06-30',
+        8600,
+        0.045,
+        387
+    );
+
+INSERT INTO contract_commissions (
+    contract_id,
+    commission_label,
+    commission_value
+) VALUES
+    (
+        (SELECT id FROM contract WHERE contract_start_date = '2023-10-01' AND contract_end_date = '2024-09-30'),
+        'Upfront',
+        300
+    ),
+    (
+        (SELECT id FROM contract WHERE contract_start_date = '2024-07-01' AND contract_end_date = '2025-06-30'),
+        'Ongoing',
+        120
+    );
+
+INSERT INTO offers (
+    deal_id,
+    supplier_id,
+    broker_id,
+    client_id,
+    report_id,
+    state,
+    contract_start_date,
+    contract_end_date,
+    contract_value,
+    term_months,
+    peak_rate,
+    shoulder_rate,
+    off_peak_rate,
+    total_cost,
+    diff_dollar,
+    diff_percentage
+) VALUES
+    (
+        (SELECT id FROM deal WHERE reference = 'DISC-2024'),
+        (SELECT s.id FROM suppliers s JOIN companies c ON c.id = s.company_id WHERE c.name = 'Momentum Energy'),
+        (SELECT b.id FROM brokers b JOIN companies c ON c.id = b.company_id WHERE c.name = 'GoBrokerage'),
+        (SELECT cl.id FROM clients cl JOIN companies c ON c.id = cl.company_id WHERE c.name = 'Discover 202 Pty Ltd'),
+        (SELECT id FROM reports WHERE report_identifier = '146'),
+        'Accepted',
+        '2024-10-01',
+        '2026-09-30',
+        7200,
+        24,
+        0.093,
+        0.11071,
+        0.09319,
+        7200,
+        -650,
+        -8.28
+    ),
+    (
+        (SELECT id FROM deal WHERE reference = 'DISC-2024'),
+        (SELECT s.id FROM suppliers s JOIN companies c ON c.id = s.company_id WHERE c.name = 'Energy Australia'),
+        (SELECT b.id FROM brokers b JOIN companies c ON c.id = b.company_id WHERE c.name = 'GoBrokerage'),
+        (SELECT cl.id FROM clients cl JOIN companies c ON c.id = cl.company_id WHERE c.name = 'Discover 202 Pty Ltd'),
+        (SELECT id FROM reports WHERE report_identifier = '146'),
+        'Awaiting acceptance',
+        '2024-10-01',
+        '2026-09-30',
+        7850,
+        24,
+        0.095,
+        0.112,
+        0.094,
+        7850,
+        0,
+        0
+    ),
+    (
+        (SELECT id FROM deal WHERE reference = 'DIRECT-2024'),
+        (SELECT s.id FROM suppliers s JOIN companies c ON c.id = s.company_id WHERE c.name = 'Supplier 3'),
+        (SELECT b.id FROM brokers b JOIN companies c ON c.id = b.company_id WHERE c.name = 'GoBrokerage'),
+        (SELECT cl.id FROM clients cl JOIN companies c ON c.id = cl.company_id WHERE c.name = 'Direct Industries Pty Ltd'),
+        NULL,
+        'Created',
+        '2024-11-01',
+        '2025-10-31',
+        6800,
+        12,
+        0.091,
+        0.105,
+        0.089,
+        6800,
+        NULL,
+        NULL
     );
 
 INSERT INTO quotes (
@@ -125,7 +271,7 @@ INSERT INTO invoices (
 ) VALUES
     (
         (SELECT s.id FROM suppliers s JOIN companies c ON c.id = s.company_id WHERE c.name = 'Momentum Energy'),
-        (SELECT id FROM contracts WHERE contract_start_date = '2024-10-01' AND contract_end_date = '2026-09-30'),
+        (SELECT id FROM contract WHERE contract_start_date = '2023-10-01' AND contract_end_date = '2024-09-30'),
         'INV-2024-001',
         '2024-10-15',
         7200,
@@ -133,7 +279,7 @@ INSERT INTO invoices (
     ),
     (
         (SELECT s.id FROM suppliers s JOIN companies c ON c.id = s.company_id WHERE c.name = 'Energy Australia'),
-        (SELECT id FROM contracts WHERE contract_start_date = '2023-10-01' AND contract_end_date = '2024-09-30'),
+        (SELECT id FROM contract WHERE contract_start_date = '2024-07-01' AND contract_end_date = '2025-06-30'),
         'INV-2024-002',
         '2024-09-30',
         7850,
@@ -189,27 +335,6 @@ INSERT INTO reports (
     '30 Days',
     'Net 14'
 );
-
-INSERT INTO contract_offers (
-    report_id,
-    supplier_name,
-    term_months,
-    peak_rate,
-    shoulder_rate,
-    off_peak_rate,
-    total_cost,
-    diff_dollar,
-    diff_percentage
-) VALUES
-    (1, 'Current', 12, 0.093, 0.11071, 0.09319, 14594.36, NULL, NULL),
-    (1, 'Supplier 2', 12, 0.11071, 0.11071, 0.09319, 14594.36, 0.0, 100),
-    (1, 'Supplier 3', 12, 0.11071, 0.11071, 0.09319, 14594.36, 0.0, 100),
-    (1, 'Current', 24, 0.093, 0.11071, 0.09319, 29188.72, NULL, NULL),
-    (1, 'Supplier 2', 24, 0.11071, 0.11071, 0.09319, 29188.72, 14594.36, 200),
-    (1, 'Supplier 3', 24, 0.11071, 0.11071, 0.09319, 29188.72, 14594.36, 200),
-    (1, 'Current', 36, 0.093, 0.11071, 0.09319, 43783.08, NULL, NULL),
-    (1, 'Supplier 2', 36, 0.11071, 0.11071, 0.09319, 43783.08, 29188.72, 200),
-    (1, 'Supplier 3', 36, 0.11071, 0.11071, 0.09319, 43783.08, 29188.72, 300);
 
 INSERT INTO other_costs (report_id, cost_label, cost_amount) VALUES
     (1, 'Network Costs', 1000.0),

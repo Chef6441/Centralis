@@ -1,6 +1,13 @@
 DROP TABLE IF EXISTS invoices;
 DROP TABLE IF EXISTS quotes;
+DROP TABLE IF EXISTS offers;
 DROP TABLE IF EXISTS contracts;
+DROP TABLE IF EXISTS contract_offers;
+DROP TABLE IF EXISTS contract_commissions;
+DROP TABLE IF EXISTS contract;
+DROP TABLE IF EXISTS nmi;
+DROP TABLE IF EXISTS site;
+DROP TABLE IF EXISTS deal;
 DROP TABLE IF EXISTS clients;
 DROP TABLE IF EXISTS partners;
 DROP TABLE IF EXISTS suppliers;
@@ -8,7 +15,6 @@ DROP TABLE IF EXISTS brokers;
 DROP TABLE IF EXISTS companies;
 DROP TABLE IF EXISTS report_site_nmis;
 DROP TABLE IF EXISTS other_costs;
-DROP TABLE IF EXISTS contract_offers;
 DROP TABLE IF EXISTS reports;
 
 CREATE TABLE companies (
@@ -56,19 +62,83 @@ CREATE TABLE clients (
     FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE
 );
 
-CREATE TABLE contracts (
+CREATE TABLE deal (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    supplier_id INTEGER NOT NULL,
-    broker_id INTEGER NOT NULL,
     client_id INTEGER NOT NULL,
+    deal_type TEXT NOT NULL CHECK (deal_type IN ('SME', 'C&I')),
+    reference TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
+);
+
+CREATE TABLE site (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    deal_id INTEGER NOT NULL,
+    name TEXT,
+    address_line1 TEXT,
+    address_line2 TEXT,
+    city TEXT,
+    state TEXT,
+    postcode TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (deal_id) REFERENCES deal(id) ON DELETE CASCADE
+);
+
+CREATE TABLE nmi (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    site_id INTEGER NOT NULL,
+    identifier TEXT NOT NULL UNIQUE,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (site_id) REFERENCES site(id) ON DELETE CASCADE
+);
+
+CREATE TABLE contract (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    client_id INTEGER NOT NULL,
+    supplier_id INTEGER NOT NULL,
     contract_start_date TEXT,
     contract_end_date TEXT,
     contract_value REAL,
-    status TEXT,
+    commission_rate REAL,
+    commission_amount REAL,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE RESTRICT,
+    FOREIGN KEY (supplier_id) REFERENCES suppliers(id) ON DELETE RESTRICT
+);
+
+CREATE TABLE contract_commissions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    contract_id INTEGER NOT NULL,
+    commission_label TEXT NOT NULL,
+    commission_value REAL NOT NULL,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (contract_id) REFERENCES contract(id) ON DELETE CASCADE
+);
+
+CREATE TABLE offers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    deal_id INTEGER NOT NULL,
+    supplier_id INTEGER NOT NULL,
+    broker_id INTEGER NOT NULL,
+    client_id INTEGER NOT NULL,
+    report_id INTEGER,
+    state TEXT NOT NULL CHECK (state IN ('Created', 'Awaiting acceptance', 'Accepted')),
+    contract_start_date TEXT,
+    contract_end_date TEXT,
+    contract_value REAL,
+    term_months INTEGER,
+    peak_rate REAL,
+    shoulder_rate REAL,
+    off_peak_rate REAL,
+    total_cost REAL,
+    diff_dollar REAL,
+    diff_percentage REAL,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (deal_id) REFERENCES deal(id) ON DELETE CASCADE,
     FOREIGN KEY (supplier_id) REFERENCES suppliers(id) ON DELETE RESTRICT,
     FOREIGN KEY (broker_id) REFERENCES brokers(id) ON DELETE RESTRICT,
-    FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE RESTRICT
+    FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE RESTRICT,
+    FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE SET NULL
 );
 
 CREATE TABLE quotes (
@@ -96,7 +166,7 @@ CREATE TABLE invoices (
     status TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (supplier_id) REFERENCES suppliers(id) ON DELETE CASCADE,
-    FOREIGN KEY (contract_id) REFERENCES contracts(id) ON DELETE SET NULL,
+    FOREIGN KEY (contract_id) REFERENCES contract(id) ON DELETE SET NULL,
     UNIQUE (invoice_number)
 );
 
@@ -126,20 +196,6 @@ CREATE TABLE reports (
     validity_period TEXT,
     payment_terms TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE contract_offers (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    report_id INTEGER NOT NULL,
-    supplier_name TEXT NOT NULL,
-    term_months INTEGER NOT NULL,
-    peak_rate REAL,
-    shoulder_rate REAL,
-    off_peak_rate REAL,
-    total_cost REAL,
-    diff_dollar REAL,
-    diff_percentage REAL,
-    FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE CASCADE
 );
 
 CREATE TABLE other_costs (
