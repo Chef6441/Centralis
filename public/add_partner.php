@@ -214,7 +214,7 @@ $returnLabel = determineReturnLabel($returnTo);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Add Partner</title>
+    <title>Select Partner</title>
     <style>
         .breadcrumbs {
             margin-bottom: 16px;
@@ -247,12 +247,12 @@ $returnLabel = determineReturnLabel($returnTo);
 </head>
 <body>
 <header>
-    <h1>Add Partner</h1>
+    <h1>Select Partner</h1>
     <nav class="breadcrumbs">
         <a href="index.php">Dashboard</a> &raquo;
         <a href="reports.php">Reports</a> &raquo;
         <a href="<?= htmlspecialchars($returnTo) ?>"><?= htmlspecialchars($returnLabel) ?></a> &raquo;
-        Add Partner
+        Select Partner
     </nav>
 </header>
 
