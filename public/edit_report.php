@@ -34,6 +34,9 @@ $formData = [
     'customer_business_name' => toInputValue($report['customer_business_name'] ?? ''),
     'customer_contact_name' => toInputValue($report['customer_contact_name'] ?? ''),
     'customer_abn' => toInputValue($report['customer_abn'] ?? ''),
+    'partner_company_name' => toInputValue($report['partner_company_name'] ?? ''),
+    'partner_contact_name' => '',
+    'broker_company_name' => toInputValue($report['broker_company_name'] ?? ''),
     'broker_consultant' => toInputValue($report['broker_consultant'] ?? ''),
     'site_nmi' => toInputValue($report['site_nmi'] ?? ''),
     'site_current_retailer' => toInputValue($report['site_current_retailer'] ?? ''),
@@ -86,6 +89,14 @@ $siteNmiParseErrors = [];
 $siteNmiParseRequested = false;
 $siteNmiParseMessage = null;
 
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' && isset($_GET['prefill']) && is_array($_GET['prefill'])) {
+    foreach ($_GET['prefill'] as $key => $value) {
+        if (array_key_exists($key, $formData)) {
+            $formData[$key] = trim((string) $value);
+        }
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach (array_keys($formData) as $key) {
         $formData[$key] = trim((string)($_POST[$key] ?? ''));
@@ -98,6 +109,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($formData['site_nmi'] === '' && !empty($siteNmiRows)) {
         $formData['site_nmi'] = $siteNmiRows[0]['nmi'];
+    if ($formData['customer_business_name'] === '') {
+        $errors[] = 'Please select a customer before updating the report.';
     }
 
     if ($siteNmiParseRequested) {
@@ -126,6 +139,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     customer_business_name = :customer_business_name,
                     customer_contact_name = :customer_contact_name,
                     customer_abn = :customer_abn,
+                    partner_company_name = :partner_company_name,
+                    broker_company_name = :broker_company_name,
                     broker_consultant = :broker_consultant,
                     site_nmi = :site_nmi,
                     site_current_retailer = :site_current_retailer,
@@ -332,6 +347,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $showSiteNmiPreview = $siteNmiParseRequested || !empty($siteNmiParseErrors);
+$returnToPath = buildStakeholderReturnPath($formData, 'edit_report.php?id=' . $reportId);
+$selectCustomerUrl = 'add_customer.php?return_to=' . rawurlencode($returnToPath);
+$selectPartnerUrl = 'add_partner.php?return_to=' . rawurlencode($returnToPath);
+$selectBrokerUrl = 'add_broker.php?return_to=' . rawurlencode($returnToPath);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -373,7 +392,7 @@ $showSiteNmiPreview = $siteNmiParseRequested || !empty($siteNmiParseErrors);
 </header>
 
 <main>
-    <section>
+    <section style="padding: 16px;">
         <?php if (!empty($errors)): ?>
             <div>
                 <ul>
@@ -385,39 +404,93 @@ $showSiteNmiPreview = $siteNmiParseRequested || !empty($siteNmiParseErrors);
         <?php endif; ?>
 
         <form method="post">
+            <input type="hidden" name="report_date" value="<?= htmlspecialchars($formData['report_date']) ?>">
+
             <h2>Report Details</h2>
             <div style="padding: 12px 0;">
-                <p>
-                    <label for="report_date">Report Date</label><br>
-                    <input id="report_date" type="date" name="report_date" value="<?= htmlspecialchars($formData['report_date']) ?>">
-                </p>
-                <p>
-                    <label for="customer_business_name">Customer Business Name</label><br>
-                    <input id="customer_business_name" type="text" name="customer_business_name" value="<?= htmlspecialchars($formData['customer_business_name']) ?>" required>
-                </p>
-                <p>
-                    <label for="customer_contact_name">Customer Contact Name</label><br>
-                    <input id="customer_contact_name" type="text" name="customer_contact_name" value="<?= htmlspecialchars($formData['customer_contact_name']) ?>">
-                </p>
-                <p>
-                    <label for="customer_abn">Customer ABN</label><br>
-                    <input id="customer_abn" type="text" name="customer_abn" value="<?= htmlspecialchars($formData['customer_abn']) ?>">
-                </p>
-                <p>
-                    <label for="broker_consultant">Broker Consultant</label><br>
-                    <input id="broker_consultant" type="text" name="broker_consultant" value="<?= htmlspecialchars($formData['broker_consultant']) ?>">
-                </p>
+                <div style="margin-bottom: 16px;">
+                    <h3>Customers</h3>
+                    <?php
+                    $customerSummary = '';
+                    if ($formData['customer_business_name'] !== '') {
+                        $customerSummary = $formData['customer_business_name'];
+                        if ($formData['customer_contact_name'] !== '') {
+                            $customerSummary .= ' - ' . $formData['customer_contact_name'];
+                        }
+                    }
+                    ?>
+                    <p>
+                        <input
+                            type="text"
+                            value="<?= htmlspecialchars($customerSummary) ?>"
+                            readonly
+                            style="width: 100%; max-width: 360px;"
+                        >
+                        <a href="<?= htmlspecialchars($selectCustomerUrl) ?>" style="margin-left: 8px;">Select Customer</a>
+                    </p>
+                    <input type="hidden" name="customer_business_name" value="<?= htmlspecialchars($formData['customer_business_name']) ?>">
+                    <input type="hidden" name="customer_contact_name" value="<?= htmlspecialchars($formData['customer_contact_name']) ?>">
+                    <input type="hidden" name="customer_abn" value="<?= htmlspecialchars($formData['customer_abn']) ?>">
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <h3>Partner</h3>
+                    <?php
+                    $partnerSummary = '';
+                    if ($formData['partner_company_name'] !== '') {
+                        $partnerSummary = $formData['partner_company_name'];
+                        if ($formData['partner_contact_name'] !== '') {
+                            $partnerSummary .= ' - ' . $formData['partner_contact_name'];
+                        }
+                    }
+                    ?>
+                    <p>
+                        <input
+                            type="text"
+                            value="<?= htmlspecialchars($partnerSummary) ?>"
+                            readonly
+                            style="width: 100%; max-width: 360px;"
+                        >
+                        <a href="<?= htmlspecialchars($selectPartnerUrl) ?>" style="margin-left: 8px;">Select Partner</a>
+                    </p>
+                    <input type="hidden" name="partner_company_name" value="<?= htmlspecialchars($formData['partner_company_name']) ?>">
+                    <input type="hidden" name="partner_contact_name" value="<?= htmlspecialchars($formData['partner_contact_name']) ?>">
+                </div>
+
+                <div>
+                    <h3>Broker</h3>
+                    <?php
+                    $brokerSummary = '';
+                    if ($formData['broker_company_name'] !== '') {
+                        $brokerSummary = $formData['broker_company_name'];
+                        if ($formData['broker_consultant'] !== '') {
+                            $brokerSummary .= ' - ' . $formData['broker_consultant'];
+                        }
+                    }
+                    ?>
+                    <p>
+                        <input
+                            type="text"
+                            value="<?= htmlspecialchars($brokerSummary) ?>"
+                            readonly
+                            style="width: 100%; max-width: 360px;"
+                        >
+                        <a href="<?= htmlspecialchars($selectBrokerUrl) ?>" style="margin-left: 8px;">Select Broker</a>
+                    </p>
+                    <input type="hidden" name="broker_company_name" value="<?= htmlspecialchars($formData['broker_company_name']) ?>">
+                    <input type="hidden" name="broker_consultant" value="<?= htmlspecialchars($formData['broker_consultant']) ?>">
+                </div>
             </div>
 
             <h2>Site Information</h2>
             <div style="padding: 12px 0;">
                 <p>
                     <label for="site_nmi">NMI</label><br>
-                    <input id="site_nmi" type="text" name="site_nmi" value="<?= htmlspecialchars($formData['site_nmi']) ?>">
+                    <input id="site_nmi" type="text" name="site_nmi" size="40" value="<?= htmlspecialchars($formData['site_nmi']) ?>">
                 </p>
                 <p>
                     <label for="site_current_retailer">Current Retailer</label><br>
-                    <input id="site_current_retailer" type="text" name="site_current_retailer" value="<?= htmlspecialchars($formData['site_current_retailer']) ?>">
+                    <input id="site_current_retailer" type="text" name="site_current_retailer" size="40" value="<?= htmlspecialchars($formData['site_current_retailer']) ?>">
                 </p>
                 <p>
                     <label for="site_contract_end_date">Contract End Date</label><br>
@@ -425,11 +498,11 @@ $showSiteNmiPreview = $siteNmiParseRequested || !empty($siteNmiParseErrors);
                 </p>
                 <p>
                     <label for="site_address_line1">Supply Address Line 1</label><br>
-                    <input id="site_address_line1" type="text" name="site_address_line1" value="<?= htmlspecialchars($formData['site_address_line1']) ?>">
+                    <input id="site_address_line1" type="text" name="site_address_line1" size="60" value="<?= htmlspecialchars($formData['site_address_line1']) ?>">
                 </p>
                 <p>
                     <label for="site_address_line2">Supply Address Line 2</label><br>
-                    <input id="site_address_line2" type="text" name="site_address_line2" value="<?= htmlspecialchars($formData['site_address_line2']) ?>">
+                    <input id="site_address_line2" type="text" name="site_address_line2" size="60" value="<?= htmlspecialchars($formData['site_address_line2']) ?>">
                 </p>
                 <p>
                     <label for="site_peak_kwh">Peak kWh</label><br>
@@ -539,7 +612,7 @@ $showSiteNmiPreview = $siteNmiParseRequested || !empty($siteNmiParseErrors);
             <div style="padding: 12px 0;">
                 <p>
                     <label for="contract_current_retailer">Current Retailer</label><br>
-                    <input id="contract_current_retailer" type="text" name="contract_current_retailer" value="<?= htmlspecialchars($formData['contract_current_retailer']) ?>">
+                    <input id="contract_current_retailer" type="text" name="contract_current_retailer" size="40" value="<?= htmlspecialchars($formData['contract_current_retailer']) ?>">
                 </p>
                 <p>
                     <label for="contract_term_months">Term (months)</label><br>
@@ -547,25 +620,28 @@ $showSiteNmiPreview = $siteNmiParseRequested || !empty($siteNmiParseErrors);
                 </p>
                 <p>
                     <label for="current_cost">Current Cost</label><br>
-                    <input id="current_cost" type="text" name="current_cost" value="<?= htmlspecialchars($formData['current_cost']) ?>">
+                    <input id="current_cost" type="text" name="current_cost" size="20" value="<?= htmlspecialchars($formData['current_cost']) ?>">
                 </p>
                 <p>
                     <label for="new_cost">New Cost</label><br>
-                    <input id="new_cost" type="text" name="new_cost" value="<?= htmlspecialchars($formData['new_cost']) ?>">
+                    <input id="new_cost" type="text" name="new_cost" size="20" value="<?= htmlspecialchars($formData['new_cost']) ?>">
                 </p>
                 <p>
                     <label for="validity_period">Validity Period</label><br>
-                    <input id="validity_period" type="text" name="validity_period" value="<?= htmlspecialchars($formData['validity_period']) ?>">
+                    <input id="validity_period" type="text" name="validity_period" size="20" value="<?= htmlspecialchars($formData['validity_period']) ?>">
                 </p>
                 <p>
                     <label for="payment_terms">Payment Terms</label><br>
-                    <input id="payment_terms" type="text" name="payment_terms" value="<?= htmlspecialchars($formData['payment_terms']) ?>">
+                    <input id="payment_terms" type="text" name="payment_terms" size="20" value="<?= htmlspecialchars($formData['payment_terms']) ?>">
                 </p>
             </div>
 
             <h2>Contract Offers</h2>
             <div style="padding: 12px 0;">
-                <table>
+                <p>
+                    <button type="button" onclick="addContractRow()">Add Contract Offer</button>
+                </p>
+                <table border="1" cellpadding="6" cellspacing="0">
                     <thead>
                     <tr>
                         <th>Supplier</th>
@@ -600,14 +676,14 @@ $showSiteNmiPreview = $siteNmiParseRequested || !empty($siteNmiParseErrors);
                     <?php endforeach; ?>
                     </tbody>
                 </table>
-                <p>
-                    <button type="button" onclick="addContractRow()">Add Contract Offer</button>
-                </p>
             </div>
 
             <h2>Other Costs</h2>
             <div style="padding: 12px 0;">
-                <table>
+                <p>
+                    <button type="button" onclick="addOtherCostRow()">Add Other Cost</button>
+                </p>
+                <table border="1" cellpadding="6" cellspacing="0">
                     <thead>
                     <tr>
                         <th>Description</th>
@@ -623,9 +699,6 @@ $showSiteNmiPreview = $siteNmiParseRequested || !empty($siteNmiParseErrors);
                     <?php endforeach; ?>
                     </tbody>
                 </table>
-                <p>
-                    <button type="button" onclick="addOtherCostRow()">Add Other Cost</button>
-                </p>
             </div>
 
             <p>
