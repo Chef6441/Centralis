@@ -95,3 +95,125 @@ function generateReportIdentifier(PDO $pdo): string
 
     throw new RuntimeException('Unable to generate a unique report identifier.');
 }
+
+/**
+ * Convert tab-separated lines of NMI data into structured rows.
+ *
+ * The expected column order is:
+ * 0 => Site/Branch label (optional)
+ * 1 => NMI (required)
+ * 2 => Status
+ * 3 => Tariff
+ * 4 => DLF
+ * 5 => kVA
+ * 6 => Average kW demand
+ * 7 => Average kVA demand
+ * 8 => Average daily consumption
+ * 9 => Average daily demand charge
+ * 10 => Demand charge
+ * 11 => Network charges
+ * 12 => Subtotal
+ */
+function parseSiteNmiBulkInput(string $input): array
+{
+    $lines = preg_split('/\r\n|\r|\n/', trim($input));
+    $rows = [];
+
+    if ($lines === false) {
+        return $rows;
+    }
+
+    foreach ($lines as $index => $line) {
+        $line = trim($line);
+
+        if ($line === '') {
+            continue;
+        }
+
+        $columns = preg_split('/\t/', $line);
+        if ($columns === false) {
+            $columns = [$line];
+        }
+
+        // Skip a potential header row on the first line.
+        if ($index === 0) {
+            $possibleHeader = array_map(static fn($value) => strtolower(trim((string) $value)), $columns);
+            $headerText = implode(' ', $possibleHeader);
+            if (str_contains($headerText, 'nmi')) {
+                continue;
+            }
+        }
+
+        $row = [
+            'site_label' => trim((string)($columns[0] ?? '')),
+            'nmi' => trim((string)($columns[1] ?? '')),
+            'status' => trim((string)($columns[2] ?? '')),
+            'tariff' => trim((string)($columns[3] ?? '')),
+            'dlf' => trim((string)($columns[4] ?? '')),
+            'kva' => trim((string)($columns[5] ?? '')),
+            'avg_kw_demand' => trim((string)($columns[6] ?? '')),
+            'avg_kva_demand' => trim((string)($columns[7] ?? '')),
+            'avg_daily_consumption' => trim((string)($columns[8] ?? '')),
+            'avg_daily_demand_charge' => trim((string)($columns[9] ?? '')),
+            'demand_charge' => trim((string)($columns[10] ?? '')),
+            'network_charge' => trim((string)($columns[11] ?? '')),
+            'subtotal' => trim((string)($columns[12] ?? '')),
+        ];
+
+        if ($row['nmi'] === '') {
+            continue;
+        }
+
+        $rows[] = $row;
+    }
+
+    return $rows;
+}
+
+/**
+ * Formats site NMI rows back into a tab separated string for editing.
+ */
+function formatSiteNmiBulkInput(array $rows): string
+{
+    if (empty($rows)) {
+        return '';
+    }
+
+    $header = [
+        'Site / Branch',
+        'NMI',
+        'Status',
+        'Tariff',
+        'DLF',
+        'kVA',
+        'Avg kW Demand',
+        'Avg kVA Demand',
+        'Avg Daily Consumption',
+        'Avg Daily Demand Charge',
+        'Demand Charge',
+        'Network Charges',
+        'Subtotal',
+    ];
+
+    $lines = [implode("\t", $header)];
+
+    foreach ($rows as $row) {
+        $lines[] = implode("\t", [
+            $row['site_label'] ?? '',
+            $row['nmi'] ?? '',
+            $row['status'] ?? '',
+            $row['tariff'] ?? '',
+            $row['dlf'] ?? '',
+            $row['kva'] ?? '',
+            $row['avg_kw_demand'] ?? '',
+            $row['avg_kva_demand'] ?? '',
+            $row['avg_daily_consumption'] ?? '',
+            $row['avg_daily_demand_charge'] ?? '',
+            $row['demand_charge'] ?? '',
+            $row['network_charge'] ?? '',
+            $row['subtotal'] ?? '',
+        ]);
+    }
+
+    return implode("\n", $lines);
+}

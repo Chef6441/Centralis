@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS partners;
 DROP TABLE IF EXISTS suppliers;
 DROP TABLE IF EXISTS brokers;
 DROP TABLE IF EXISTS companies;
+DROP TABLE IF EXISTS report_site_nmis;
 DROP TABLE IF EXISTS other_costs;
 DROP TABLE IF EXISTS contract_offers;
 DROP TABLE IF EXISTS reports;
@@ -144,5 +145,24 @@ CREATE TABLE other_costs (
     report_id INTEGER NOT NULL,
     cost_label TEXT NOT NULL,
     cost_amount REAL NOT NULL,
+    FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE CASCADE
+);
+
+CREATE TABLE report_site_nmis (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    report_id INTEGER NOT NULL,
+    site_label TEXT,
+    nmi TEXT NOT NULL,
+    status TEXT,
+    tariff TEXT,
+    dlf TEXT,
+    kva TEXT,
+    avg_kw_demand TEXT,
+    avg_kva_demand TEXT,
+    avg_daily_consumption TEXT,
+    avg_daily_demand_charge TEXT,
+    demand_charge TEXT,
+    network_charge TEXT,
+    subtotal TEXT,
     FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE CASCADE
 );

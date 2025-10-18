@@ -24,6 +24,10 @@ $otherCostsQuery = $pdo->prepare('SELECT cost_label, cost_amount FROM other_cost
 $otherCostsQuery->execute([':id' => $reportId]);
 $otherCosts = $otherCostsQuery->fetchAll(PDO::FETCH_ASSOC);
 
+$siteNmiQuery = $pdo->prepare('SELECT * FROM report_site_nmis WHERE report_id = :id ORDER BY id');
+$siteNmiQuery->execute([':id' => $reportId]);
+$siteNmis = $siteNmiQuery->fetchAll(PDO::FETCH_ASSOC);
+
 $contractsByTerm = [];
 foreach ($contracts as $contract) {
     $contractsByTerm[(int) $contract['term_months']][] = $contract;
@@ -129,6 +133,48 @@ $termHeadings = [
             </tr>
             </tbody>
         </table>
+
+        <?php if (!empty($siteNmis)): ?>
+            <h3>Site NMIs</h3>
+            <table border="1" cellspacing="0" cellpadding="6">
+                <thead>
+                <tr>
+                    <th>Site / Branch</th>
+                    <th>NMI</th>
+                    <th>Status</th>
+                    <th>Tariff</th>
+                    <th>DLF</th>
+                    <th>kVA</th>
+                    <th>Avg kW Demand</th>
+                    <th>Avg kVA Demand</th>
+                    <th>Avg Daily Consumption</th>
+                    <th>Avg Daily Demand Charge</th>
+                    <th>Demand Charge</th>
+                    <th>Network Charges</th>
+                    <th>Subtotal</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($siteNmis as $siteNmi): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($siteNmi['site_label'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['nmi']) ?></td>
+                        <td><?= htmlspecialchars($siteNmi['status'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['tariff'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['dlf'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['kva'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['avg_kw_demand'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['avg_kva_demand'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['avg_daily_consumption'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['avg_daily_demand_charge'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['demand_charge'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['network_charge'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['subtotal'] ?? '') ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
 
         <h3>Consumption &amp; Costs</h3>
         <table border="1" cellspacing="0" cellpadding="6">

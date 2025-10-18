@@ -211,3 +211,52 @@ INSERT INTO other_costs (report_id, cost_label, cost_amount) VALUES
     (1, 'Network Costs', 1000.0),
     (1, 'Cost 2', 1000.0),
     (1, 'Cost 3', 1000.0);
+
+INSERT INTO report_site_nmis (
+    report_id,
+    site_label,
+    nmi,
+    status,
+    tariff,
+    dlf,
+    kva,
+    avg_kw_demand,
+    avg_kva_demand,
+    avg_daily_consumption,
+    avg_daily_demand_charge,
+    demand_charge,
+    network_charge,
+    subtotal
+) VALUES
+    (
+        1,
+        'Warehouse 1',
+        '4103961965A',
+        'Active',
+        'NQT',
+        '1.010',
+        '400',
+        '85',
+        '90',
+        '2,450',
+        '$12.50',
+        '$475.00',
+        '$1,120.00',
+        '$1,595.00'
+    ),
+    (
+        1,
+        'Warehouse 1',
+        '4103961965B',
+        'Active',
+        'NQT',
+        '1.010',
+        '400',
+        '62',
+        '64',
+        '1,980',
+        '$9.80',
+        '$372.40',
+        '$940.00',
+        '$1,312.40'
+    );

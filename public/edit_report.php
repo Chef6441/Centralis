@@ -44,6 +44,7 @@ $formData = [
     'site_shoulder_kwh' => toInputValue($report['site_shoulder_kwh'] ?? ''),
     'site_off_peak_kwh' => toInputValue($report['site_off_peak_kwh'] ?? ''),
     'site_total_kwh' => toInputValue($report['site_total_kwh'] ?? ''),
+    'site_nmi_bulk' => '',
     'contract_current_retailer' => toInputValue($report['contract_current_retailer'] ?? ''),
     'contract_term_months' => toInputValue($report['contract_term_months'] ?? ''),
     'current_cost' => $report['current_cost'] !== null ? number_format((float)$report['current_cost'], 2, '.', '') : '',
@@ -59,6 +60,14 @@ $contracts = $contractsQuery->fetchAll(PDO::FETCH_ASSOC);
 $otherCostsQuery = $pdo->prepare('SELECT cost_label, cost_amount FROM other_costs WHERE report_id = :id');
 $otherCostsQuery->execute([':id' => $reportId]);
 $otherCosts = $otherCostsQuery->fetchAll(PDO::FETCH_ASSOC);
+
+$siteNmiQuery = $pdo->prepare('SELECT * FROM report_site_nmis WHERE report_id = :id ORDER BY id');
+$siteNmiQuery->execute([':id' => $reportId]);
+$siteNmiRows = $siteNmiQuery->fetchAll(PDO::FETCH_ASSOC);
+
+if ($formData['site_nmi_bulk'] === '') {
+    $formData['site_nmi_bulk'] = formatSiteNmiBulkInput($siteNmiRows);
+}
 
 if (!$contracts) {
     $contracts = [
@@ -81,6 +90,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $contracts = array_values($_POST['contracts'] ?? $contracts);
     $otherCosts = array_values($_POST['other_costs'] ?? $otherCosts);
+    $siteNmiRows = parseSiteNmiBulkInput($formData['site_nmi_bulk']);
+
+    if ($formData['site_nmi'] === '' && !empty($siteNmiRows)) {
+        $formData['site_nmi'] = $siteNmiRows[0]['nmi'];
+    }
 
     if ($formData['customer_business_name'] === '') {
         $errors[] = 'Customer business name is required.';
@@ -141,6 +155,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $pdo->prepare('DELETE FROM contract_offers WHERE report_id = :report_id')->execute([':report_id' => $reportId]);
             $pdo->prepare('DELETE FROM other_costs WHERE report_id = :report_id')->execute([':report_id' => $reportId]);
+            $pdo->prepare('DELETE FROM report_site_nmis WHERE report_id = :report_id')->execute([':report_id' => $reportId]);
+
+            if (!empty($siteNmiRows)) {
+                $insertSiteNmi = $pdo->prepare(
+                    'INSERT INTO report_site_nmis (
+                        report_id,
+                        site_label,
+                        nmi,
+                        status,
+                        tariff,
+                        dlf,
+                        kva,
+                        avg_kw_demand,
+                        avg_kva_demand,
+                        avg_daily_consumption,
+                        avg_daily_demand_charge,
+                        demand_charge,
+                        network_charge,
+                        subtotal
+                    ) VALUES (
+                        :report_id,
+                        :site_label,
+                        :nmi,
+                        :status,
+                        :tariff,
+                        :dlf,
+                        :kva,
+                        :avg_kw_demand,
+                        :avg_kva_demand,
+                        :avg_daily_consumption,
+                        :avg_daily_demand_charge,
+                        :demand_charge,
+                        :network_charge,
+                        :subtotal
+                    )'
+                );
+
+                foreach ($siteNmiRows as $row) {
+                    $insertSiteNmi->execute([
+                        ':report_id' => $reportId,
+                        ':site_label' => $row['site_label'] ?: null,
+                        ':nmi' => $row['nmi'],
+                        ':status' => $row['status'] ?: null,
+                        ':tariff' => $row['tariff'] ?: null,
+                        ':dlf' => $row['dlf'] ?: null,
+                        ':kva' => $row['kva'] ?: null,
+                        ':avg_kw_demand' => $row['avg_kw_demand'] ?: null,
+                        ':avg_kva_demand' => $row['avg_kva_demand'] ?: null,
+                        ':avg_daily_consumption' => $row['avg_daily_consumption'] ?: null,
+                        ':avg_daily_demand_charge' => $row['avg_daily_demand_charge'] ?: null,
+                        ':demand_charge' => $row['demand_charge'] ?: null,
+                        ':network_charge' => $row['network_charge'] ?: null,
+                        ':subtotal' => $row['subtotal'] ?: null,
+                    ]);
+                }
+            }
 
             $insertContract = $pdo->prepare(
                 'INSERT INTO contract_offers (
@@ -331,6 +401,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label for="site_total_kwh">Total kWh</label><br>
                     <input id="site_total_kwh" type="number" step="1" name="site_total_kwh" value="<?= htmlspecialchars($formData['site_total_kwh']) ?>">
                 </p>
+            </div>
+
+            <h3>Site NMIs</h3>
+            <div style="padding: 12px 0;">
+                <p>Paste tab-separated NMI data from Excel. Columns should follow this order: Site / Branch, NMI, Status, Tariff, DLF, kVA, Avg kW Demand, Avg kVA Demand, Avg Daily Consumption, Avg Daily Demand Charge, Demand Charge, Network Charges, Subtotal. A header row is optional and will be ignored.</p>
+                <textarea id="site_nmi_bulk" name="site_nmi_bulk" rows="8" cols="120" placeholder="Site / Branch<TAB>NMI<TAB>Status<TAB>..."><?= htmlspecialchars($formData['site_nmi_bulk']) ?></textarea>
             </div>
 
             <h2>Current Contract</h2>
