@@ -39,6 +39,8 @@ function initializeDatabase(PDO $pdo): void
     $hasReportsTable = $statement !== false && $statement->fetchColumn() !== false;
 
     if ($hasReportsTable) {
+        ensureReportsTableHasCustomerAbn($pdo);
+        ensureReportSiteNmisTable($pdo);
         ensureCoreTablesExist($pdo);
         ensureReportsTableHasAdditionalColumns($pdo);
         return;
@@ -55,6 +57,8 @@ function initializeDatabase(PDO $pdo): void
     }
 
     $pdo->exec($schemaSql);
+    ensureReportsTableHasCustomerAbn($pdo);
+    ensureReportSiteNmisTable($pdo);
     ensureCoreTablesExist($pdo);
     ensureReportsTableHasAdditionalColumns($pdo);
 }
@@ -150,4 +154,47 @@ function tableExists(PDO $pdo, string $tableName): bool
     $statement->execute([':name' => $tableName]);
 
     return $statement->fetchColumn() !== false;
+}
+
+/**
+ * Creates the report_site_nmis table when it does not exist.
+ */
+function ensureReportSiteNmisTable(PDO $pdo): void
+{
+    $statement = $pdo->query("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'report_site_nmis'");
+    $hasTable = $statement !== false && $statement->fetchColumn() !== false;
+
+    if ($hasTable) {
+        return;
+    }
+
+    $pdo->exec(
+        'CREATE TABLE report_site_nmis (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            report_id INTEGER NOT NULL,
+            site_identifier TEXT,
+            abn TEXT,
+            nmi TEXT NOT NULL,
+            utility TEXT,
+            building_name TEXT,
+            unit TEXT,
+            street_number TEXT,
+            street TEXT,
+            suburb TEXT,
+            state TEXT,
+            postcode TEXT,
+            tariff TEXT,
+            annual_estimated_usage_kwh TEXT,
+            peak_c_per_kwh TEXT,
+            off_peak_c_per_kwh TEXT,
+            daily_supply_c_per_day TEXT,
+            average_daily_consumption TEXT,
+            annual_usage_charge TEXT,
+            annual_supply_charge TEXT,
+            offer_12_months TEXT,
+            offer_24_months TEXT,
+            offer_36_months TEXT,
+            FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE CASCADE
+        )'
+    );
 }
