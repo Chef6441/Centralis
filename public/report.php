@@ -139,37 +139,55 @@ $termHeadings = [
             <table border="1" cellspacing="0" cellpadding="6">
                 <thead>
                 <tr>
-                    <th>Site / Branch</th>
-                    <th>NMI</th>
-                    <th>Status</th>
-                    <th>Tariff</th>
-                    <th>DLF</th>
-                    <th>kVA</th>
-                    <th>Avg kW Demand</th>
-                    <th>Avg kVA Demand</th>
-                    <th>Avg Daily Consumption</th>
-                    <th>Avg Daily Demand Charge</th>
-                    <th>Demand Charge</th>
-                    <th>Network Charges</th>
-                    <th>Subtotal</th>
+                    <th>SITE IDENTIFIER</th>
+                    <th>ABN</th>
+                    <th>NMI/MIRN</th>
+                    <th>UTILITY</th>
+                    <th>BUILDING NAME</th>
+                    <th>UNIT</th>
+                    <th>NUMBER</th>
+                    <th>STREET</th>
+                    <th>SUBURB</th>
+                    <th>STATE</th>
+                    <th>POSTCODE</th>
+                    <th>TARIFF</th>
+                    <th>ANNUAL ESTIMATED USAGE (kWh)</th>
+                    <th>Peak (c/kWh)</th>
+                    <th>Off-Peak (kWh)</th>
+                    <th>Daily Supply (c/day)</th>
+                    <th>Average Daily Consumption</th>
+                    <th>Annual Usage Charge</th>
+                    <th>Annual Supply Charge</th>
+                    <th>12 months</th>
+                    <th>24 months</th>
+                    <th>36 months</th>
                 </tr>
                 </thead>
                 <tbody>
                 <?php foreach ($siteNmis as $siteNmi): ?>
                     <tr>
-                        <td><?= htmlspecialchars($siteNmi['site_label'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['site_identifier'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['abn'] ?? '') ?></td>
                         <td><?= htmlspecialchars($siteNmi['nmi']) ?></td>
-                        <td><?= htmlspecialchars($siteNmi['status'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['utility'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['building_name'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['unit'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['street_number'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['street'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['suburb'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['state'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['postcode'] ?? '') ?></td>
                         <td><?= htmlspecialchars($siteNmi['tariff'] ?? '') ?></td>
-                        <td><?= htmlspecialchars($siteNmi['dlf'] ?? '') ?></td>
-                        <td><?= htmlspecialchars($siteNmi['kva'] ?? '') ?></td>
-                        <td><?= htmlspecialchars($siteNmi['avg_kw_demand'] ?? '') ?></td>
-                        <td><?= htmlspecialchars($siteNmi['avg_kva_demand'] ?? '') ?></td>
-                        <td><?= htmlspecialchars($siteNmi['avg_daily_consumption'] ?? '') ?></td>
-                        <td><?= htmlspecialchars($siteNmi['avg_daily_demand_charge'] ?? '') ?></td>
-                        <td><?= htmlspecialchars($siteNmi['demand_charge'] ?? '') ?></td>
-                        <td><?= htmlspecialchars($siteNmi['network_charge'] ?? '') ?></td>
-                        <td><?= htmlspecialchars($siteNmi['subtotal'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['annual_estimated_usage_kwh'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['peak_c_per_kwh'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['off_peak_c_per_kwh'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['daily_supply_c_per_day'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['average_daily_consumption'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['annual_usage_charge'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['annual_supply_charge'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['offer_12_months'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['offer_24_months'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($siteNmi['offer_36_months'] ?? '') ?></td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>

@@ -165,53 +165,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $insertSiteNmi = $pdo->prepare(
                 'INSERT INTO report_site_nmis (
                     report_id,
-                    site_label,
+                    site_identifier,
+                    abn,
                     nmi,
-                    status,
+                    utility,
+                    building_name,
+                    unit,
+                    street_number,
+                    street,
+                    suburb,
+                    state,
+                    postcode,
                     tariff,
-                    dlf,
-                    kva,
-                    avg_kw_demand,
-                    avg_kva_demand,
-                    avg_daily_consumption,
-                    avg_daily_demand_charge,
-                    demand_charge,
-                    network_charge,
-                    subtotal
+                    annual_estimated_usage_kwh,
+                    peak_c_per_kwh,
+                    off_peak_c_per_kwh,
+                    daily_supply_c_per_day,
+                    average_daily_consumption,
+                    annual_usage_charge,
+                    annual_supply_charge,
+                    offer_12_months,
+                    offer_24_months,
+                    offer_36_months
                 ) VALUES (
                     :report_id,
-                    :site_label,
+                    :site_identifier,
+                    :abn,
                     :nmi,
-                    :status,
+                    :utility,
+                    :building_name,
+                    :unit,
+                    :street_number,
+                    :street,
+                    :suburb,
+                    :state,
+                    :postcode,
                     :tariff,
-                    :dlf,
-                    :kva,
-                    :avg_kw_demand,
-                    :avg_kva_demand,
-                    :avg_daily_consumption,
-                    :avg_daily_demand_charge,
-                    :demand_charge,
-                    :network_charge,
-                    :subtotal
+                    :annual_estimated_usage_kwh,
+                    :peak_c_per_kwh,
+                    :off_peak_c_per_kwh,
+                    :daily_supply_c_per_day,
+                    :average_daily_consumption,
+                    :annual_usage_charge,
+                    :annual_supply_charge,
+                    :offer_12_months,
+                    :offer_24_months,
+                    :offer_36_months
                 )'
             );
 
                 foreach ($siteNmiRows as $row) {
                     $insertSiteNmi->execute([
                         ':report_id' => $reportId,
-                        ':site_label' => $row['site_label'] ?: null,
+                        ':site_identifier' => $row['site_identifier'] ?: null,
+                        ':abn' => $row['abn'] ?: null,
                         ':nmi' => $row['nmi'],
-                        ':status' => $row['status'] ?: null,
+                        ':utility' => $row['utility'] ?: null,
+                        ':building_name' => $row['building_name'] ?: null,
+                        ':unit' => $row['unit'] ?: null,
+                        ':street_number' => $row['street_number'] ?: null,
+                        ':street' => $row['street'] ?: null,
+                        ':suburb' => $row['suburb'] ?: null,
+                        ':state' => $row['state'] ?: null,
+                        ':postcode' => $row['postcode'] ?: null,
                         ':tariff' => $row['tariff'] ?: null,
-                        ':dlf' => $row['dlf'] ?: null,
-                        ':kva' => $row['kva'] ?: null,
-                        ':avg_kw_demand' => $row['avg_kw_demand'] ?: null,
-                        ':avg_kva_demand' => $row['avg_kva_demand'] ?: null,
-                        ':avg_daily_consumption' => $row['avg_daily_consumption'] ?: null,
-                        ':avg_daily_demand_charge' => $row['avg_daily_demand_charge'] ?: null,
-                        ':demand_charge' => $row['demand_charge'] ?: null,
-                        ':network_charge' => $row['network_charge'] ?: null,
-                        ':subtotal' => $row['subtotal'] ?: null,
+                        ':annual_estimated_usage_kwh' => $row['annual_estimated_usage_kwh'] ?: null,
+                        ':peak_c_per_kwh' => $row['peak_c_per_kwh'] ?: null,
+                        ':off_peak_c_per_kwh' => $row['off_peak_c_per_kwh'] ?: null,
+                        ':daily_supply_c_per_day' => $row['daily_supply_c_per_day'] ?: null,
+                        ':average_daily_consumption' => $row['average_daily_consumption'] ?: null,
+                        ':annual_usage_charge' => $row['annual_usage_charge'] ?: null,
+                        ':annual_supply_charge' => $row['annual_supply_charge'] ?: null,
+                        ':offer_12_months' => $row['offer_12_months'] ?: null,
+                        ':offer_24_months' => $row['offer_24_months'] ?: null,
+                        ':offer_36_months' => $row['offer_36_months'] ?: null,
                     ]);
                 }
             }
@@ -405,8 +432,8 @@ $showSiteNmiPreview = $siteNmiParseRequested || !empty($siteNmiParseErrors);
 
             <h3>Site NMIs</h3>
             <div style="padding: 12px 0;">
-                <p>Paste tab-separated NMI data from Excel. Columns should follow this order: Site / Branch, NMI, Status, Tariff, DLF, kVA, Avg kW Demand, Avg kVA Demand, Avg Daily Consumption, Avg Daily Demand Charge, Demand Charge, Network Charges, Subtotal. A header row is optional and will be ignored.</p>
-                <textarea id="site_nmi_bulk" name="site_nmi_bulk" rows="8" cols="120" placeholder="Site / Branch<TAB>NMI<TAB>Status<TAB>..."><?= htmlspecialchars($formData['site_nmi_bulk']) ?></textarea>
+                <p>Paste tab-separated site data from Excel. Columns should follow this order: SITE IDENTIFIER, ABN, NMI/MIRN, UTILITY, BUILDING NAME, UNIT, NUMBER, STREET, SUBURB, STATE, POSTCODE, TARIFF, ANNUAL ESTIMATED USAGE (kWh), Peak (c/kWh), Off-Peak (kWh), Daily Supply (c/day), Average Daily Consumption, Annual Usage Charge, Annual Supply Charge, 12 months, 24 months, 36 months. A header row is optional and will be ignored.</p>
+                <textarea id="site_nmi_bulk" name="site_nmi_bulk" rows="8" cols="120" placeholder="SITE IDENTIFIER<TAB>ABN<TAB>NMI/MIRN<TAB>..."><?= htmlspecialchars($formData['site_nmi_bulk']) ?></textarea>
                 <p>
                     <button type="submit" name="parse_site_nmi" value="1" formnovalidate>Parse</button>
                 </p>
@@ -419,37 +446,55 @@ $showSiteNmiPreview = $siteNmiParseRequested || !empty($siteNmiParseErrors);
                             <table border="1" cellpadding="6" cellspacing="0">
                                 <thead>
                                 <tr>
-                                    <th>Site / Branch</th>
-                                    <th>NMI</th>
-                                    <th>Status</th>
-                                    <th>Tariff</th>
-                                    <th>DLF</th>
-                                    <th>kVA</th>
-                                    <th>Avg kW Demand</th>
-                                    <th>Avg kVA Demand</th>
-                                    <th>Avg Daily Consumption</th>
-                                    <th>Avg Daily Demand Charge</th>
-                                    <th>Demand Charge</th>
-                                    <th>Network Charges</th>
-                                    <th>Subtotal</th>
+                                    <th>SITE IDENTIFIER</th>
+                                    <th>ABN</th>
+                                    <th>NMI/MIRN</th>
+                                    <th>UTILITY</th>
+                                    <th>BUILDING NAME</th>
+                                    <th>UNIT</th>
+                                    <th>NUMBER</th>
+                                    <th>STREET</th>
+                                    <th>SUBURB</th>
+                                    <th>STATE</th>
+                                    <th>POSTCODE</th>
+                                    <th>TARIFF</th>
+                                    <th>ANNUAL ESTIMATED USAGE (kWh)</th>
+                                    <th>Peak (c/kWh)</th>
+                                    <th>Off-Peak (kWh)</th>
+                                    <th>Daily Supply (c/day)</th>
+                                    <th>Average Daily Consumption</th>
+                                    <th>Annual Usage Charge</th>
+                                    <th>Annual Supply Charge</th>
+                                    <th>12 months</th>
+                                    <th>24 months</th>
+                                    <th>36 months</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <?php foreach ($siteNmiRows as $row): ?>
                                     <tr>
-                                        <td><?= htmlspecialchars($row['site_label']) ?></td>
+                                        <td><?= htmlspecialchars($row['site_identifier']) ?></td>
+                                        <td><?= htmlspecialchars($row['abn']) ?></td>
                                         <td><?= htmlspecialchars($row['nmi']) ?></td>
-                                        <td><?= htmlspecialchars($row['status']) ?></td>
+                                        <td><?= htmlspecialchars($row['utility']) ?></td>
+                                        <td><?= htmlspecialchars($row['building_name']) ?></td>
+                                        <td><?= htmlspecialchars($row['unit']) ?></td>
+                                        <td><?= htmlspecialchars($row['street_number']) ?></td>
+                                        <td><?= htmlspecialchars($row['street']) ?></td>
+                                        <td><?= htmlspecialchars($row['suburb']) ?></td>
+                                        <td><?= htmlspecialchars($row['state']) ?></td>
+                                        <td><?= htmlspecialchars($row['postcode']) ?></td>
                                         <td><?= htmlspecialchars($row['tariff']) ?></td>
-                                        <td><?= htmlspecialchars($row['dlf']) ?></td>
-                                        <td><?= htmlspecialchars($row['kva']) ?></td>
-                                        <td><?= htmlspecialchars($row['avg_kw_demand']) ?></td>
-                                        <td><?= htmlspecialchars($row['avg_kva_demand']) ?></td>
-                                        <td><?= htmlspecialchars($row['avg_daily_consumption']) ?></td>
-                                        <td><?= htmlspecialchars($row['avg_daily_demand_charge']) ?></td>
-                                        <td><?= htmlspecialchars($row['demand_charge']) ?></td>
-                                        <td><?= htmlspecialchars($row['network_charge']) ?></td>
-                                        <td><?= htmlspecialchars($row['subtotal']) ?></td>
+                                        <td><?= htmlspecialchars($row['annual_estimated_usage_kwh']) ?></td>
+                                        <td><?= htmlspecialchars($row['peak_c_per_kwh']) ?></td>
+                                        <td><?= htmlspecialchars($row['off_peak_c_per_kwh']) ?></td>
+                                        <td><?= htmlspecialchars($row['daily_supply_c_per_day']) ?></td>
+                                        <td><?= htmlspecialchars($row['average_daily_consumption']) ?></td>
+                                        <td><?= htmlspecialchars($row['annual_usage_charge']) ?></td>
+                                        <td><?= htmlspecialchars($row['annual_supply_charge']) ?></td>
+                                        <td><?= htmlspecialchars($row['offer_12_months']) ?></td>
+                                        <td><?= htmlspecialchars($row['offer_24_months']) ?></td>
+                                        <td><?= htmlspecialchars($row['offer_36_months']) ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                                 </tbody>

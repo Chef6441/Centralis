@@ -97,22 +97,31 @@ function generateReportIdentifier(PDO $pdo): string
 }
 
 /**
- * Convert tab-separated lines of NMI data into structured rows.
+ * Convert tab-separated lines of site data into structured rows.
  *
  * The expected column order is:
- * 0 => Site/Branch label (optional)
- * 1 => NMI (required)
- * 2 => Status
- * 3 => Tariff
- * 4 => DLF
- * 5 => kVA
- * 6 => Average kW demand
- * 7 => Average kVA demand
- * 8 => Average daily consumption
- * 9 => Average daily demand charge
- * 10 => Demand charge
- * 11 => Network charges
- * 12 => Subtotal
+ * 0  => Site Identifier
+ * 1  => ABN
+ * 2  => NMI / MIRN (required)
+ * 3  => Utility
+ * 4  => Building Name
+ * 5  => Unit
+ * 6  => Street Number
+ * 7  => Street
+ * 8  => Suburb
+ * 9  => State
+ * 10 => Postcode
+ * 11 => Tariff
+ * 12 => Annual Estimated Usage (kWh)
+ * 13 => Peak (c/kWh)
+ * 14 => Off-Peak (kWh)
+ * 15 => Daily Supply (c/day)
+ * 16 => Average Daily Consumption
+ * 17 => Annual Usage Charge
+ * 18 => Annual Supply Charge
+ * 19 => 12 months
+ * 20 => 24 months
+ * 21 => 36 months
  */
 function parseSiteNmiBulkInput(string $input, ?array &$errors = null): array
 {
@@ -128,64 +137,93 @@ function parseSiteNmiBulkInput(string $input, ?array &$errors = null): array
         return $rows;
     }
 
-    $lines = preg_split('/\r\n|\r|\n/', $trimmedInput);
-
-    if ($lines === false) {
+    $handle = fopen('php://temp', 'r+');
+    if ($handle === false) {
         if ($errors !== null) {
-            $errors = ['Unable to read the provided NMI data.'];
+            $errors = ['Unable to process the provided NMI data.'];
         }
 
         return $rows;
     }
 
-    foreach ($lines as $index => $line) {
-        $lineNumber = $index + 1;
-        $line = trim($line);
+    if (fwrite($handle, $trimmedInput) === false) {
+        fclose($handle);
 
-        if ($line === '') {
+        if ($errors !== null) {
+            $errors = ['Unable to process the provided NMI data.'];
+        }
+
+        return $rows;
+    }
+
+    rewind($handle);
+
+    $columnKeys = [
+        'site_identifier',
+        'abn',
+        'nmi',
+        'utility',
+        'building_name',
+        'unit',
+        'street_number',
+        'street',
+        'suburb',
+        'state',
+        'postcode',
+        'tariff',
+        'annual_estimated_usage_kwh',
+        'peak_c_per_kwh',
+        'off_peak_c_per_kwh',
+        'daily_supply_c_per_day',
+        'average_daily_consumption',
+        'annual_usage_charge',
+        'annual_supply_charge',
+        'offer_12_months',
+        'offer_24_months',
+        'offer_36_months',
+    ];
+
+    $lineNumber = 0;
+    while (($columns = fgetcsv($handle, 0, "\t")) !== false) {
+        $lineNumber++;
+
+        if ($columns === null) {
             continue;
         }
 
-        $columns = preg_split('/\t/', $line);
-        if ($columns === false) {
-            $columns = [$line];
+        $trimmedColumns = array_map(static fn($value) => trim((string) $value), $columns);
+
+        if (count(array_filter($trimmedColumns, static fn($value) => $value !== '')) === 0) {
+            continue;
         }
 
-        // Skip a potential header row on the first line.
-        if ($index === 0) {
-            $possibleHeader = array_map(static fn($value) => strtolower(trim((string) $value)), $columns);
-            $headerText = implode(' ', $possibleHeader);
+        if ($lineNumber === 1) {
+            $headerText = strtolower(implode(' ', $trimmedColumns));
             if (str_contains($headerText, 'nmi')) {
                 continue;
             }
         }
 
-        $nmi = trim((string)($columns[1] ?? ''));
+        $columns = array_pad($trimmedColumns, count($columnKeys), '');
+        $nmi = $columns[2] ?? '';
 
         if ($nmi === '') {
-            $collectedErrors[] = "Row {$lineNumber} is missing an NMI value.";
+            $collectedErrors[] = "Row {$lineNumber} is missing an NMI/MIRN value.";
             continue;
         }
 
-        $rows[] = [
-            'site_label' => trim((string)($columns[0] ?? '')),
-            'nmi' => $nmi,
-            'status' => trim((string)($columns[2] ?? '')),
-            'tariff' => trim((string)($columns[3] ?? '')),
-            'dlf' => trim((string)($columns[4] ?? '')),
-            'kva' => trim((string)($columns[5] ?? '')),
-            'avg_kw_demand' => trim((string)($columns[6] ?? '')),
-            'avg_kva_demand' => trim((string)($columns[7] ?? '')),
-            'avg_daily_consumption' => trim((string)($columns[8] ?? '')),
-            'avg_daily_demand_charge' => trim((string)($columns[9] ?? '')),
-            'demand_charge' => trim((string)($columns[10] ?? '')),
-            'network_charge' => trim((string)($columns[11] ?? '')),
-            'subtotal' => trim((string)($columns[12] ?? '')),
-        ];
+        $row = [];
+        foreach ($columnKeys as $index => $key) {
+            $row[$key] = $columns[$index] ?? '';
+        }
+
+        $rows[] = $row;
     }
 
+    fclose($handle);
+
     if ($trimmedInput !== '' && empty($rows) && empty($collectedErrors)) {
-        $collectedErrors[] = 'No valid NMI rows were detected. Ensure each line includes an NMI value.';
+        $collectedErrors[] = 'No valid NMI rows were detected. Ensure each line includes an NMI/MIRN value.';
     }
 
     if ($errors !== null) {
@@ -196,7 +234,7 @@ function parseSiteNmiBulkInput(string $input, ?array &$errors = null): array
 }
 
 /**
- * Formats site NMI rows back into a tab separated string for editing.
+ * Formats site data rows back into a tab separated string for editing.
  */
 function formatSiteNmiBulkInput(array $rows): string
 {
@@ -205,38 +243,56 @@ function formatSiteNmiBulkInput(array $rows): string
     }
 
     $header = [
-        'Site / Branch',
-        'NMI',
-        'Status',
-        'Tariff',
-        'DLF',
-        'kVA',
-        'Avg kW Demand',
-        'Avg kVA Demand',
-        'Avg Daily Consumption',
-        'Avg Daily Demand Charge',
-        'Demand Charge',
-        'Network Charges',
-        'Subtotal',
+        'SITE IDENTIFIER',
+        'ABN',
+        'NMI/MIRN',
+        'UTILITY',
+        'BUILDING NAME',
+        'UNIT',
+        'NUMBER',
+        'STREET',
+        'SUBURB',
+        'STATE',
+        'POSTCODE',
+        'TARIFF',
+        'ANNUAL ESTIMATED USAGE (kWh)',
+        'Peak (c/kWh)',
+        'Off-Peak (kWh)',
+        'Daily Supply (c/day)',
+        'Average Daily Consumption',
+        'Annual Usage Charge',
+        'Annual Supply Charge',
+        '12 months',
+        '24 months',
+        '36 months',
     ];
 
     $lines = [implode("\t", $header)];
 
     foreach ($rows as $row) {
         $lines[] = implode("\t", [
-            $row['site_label'] ?? '',
+            $row['site_identifier'] ?? '',
+            $row['abn'] ?? '',
             $row['nmi'] ?? '',
-            $row['status'] ?? '',
+            $row['utility'] ?? '',
+            $row['building_name'] ?? '',
+            $row['unit'] ?? '',
+            $row['street_number'] ?? '',
+            $row['street'] ?? '',
+            $row['suburb'] ?? '',
+            $row['state'] ?? '',
+            $row['postcode'] ?? '',
             $row['tariff'] ?? '',
-            $row['dlf'] ?? '',
-            $row['kva'] ?? '',
-            $row['avg_kw_demand'] ?? '',
-            $row['avg_kva_demand'] ?? '',
-            $row['avg_daily_consumption'] ?? '',
-            $row['avg_daily_demand_charge'] ?? '',
-            $row['demand_charge'] ?? '',
-            $row['network_charge'] ?? '',
-            $row['subtotal'] ?? '',
+            $row['annual_estimated_usage_kwh'] ?? '',
+            $row['peak_c_per_kwh'] ?? '',
+            $row['off_peak_c_per_kwh'] ?? '',
+            $row['daily_supply_c_per_day'] ?? '',
+            $row['average_daily_consumption'] ?? '',
+            $row['annual_usage_charge'] ?? '',
+            $row['annual_supply_charge'] ?? '',
+            $row['offer_12_months'] ?? '',
+            $row['offer_24_months'] ?? '',
+            $row['offer_36_months'] ?? '',
         ]);
     }
 
