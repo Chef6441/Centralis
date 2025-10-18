@@ -53,9 +53,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' && isset($_GET['prefill']) && is_array
     }
 }
 
-$addCustomerUrl = 'add_customer.php?return_to=' . urlencode('create_report.php');
-$addPartnerUrl = 'add_partner.php?return_to=' . urlencode('create_report.php');
-$addBrokerUrl = 'add_broker.php?return_to=' . urlencode('create_report.php');
+$selectCustomerUrl = 'add_customer.php?return_to=' . urlencode('create_report.php');
+$selectPartnerUrl = 'add_partner.php?return_to=' . urlencode('create_report.php');
+$selectBrokerUrl = 'add_broker.php?return_to=' . urlencode('create_report.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach (array_keys($formData) as $key) {
@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $otherCosts = array_values($_POST['other_costs'] ?? $otherCosts);
 
     if ($formData['customer_business_name'] === '') {
-        $errors[] = 'Please add a customer before creating the report.';
+        $errors[] = 'Please select a customer before creating the report.';
     }
 
     if (empty($errors)) {
@@ -284,20 +284,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div style="padding: 12px 0;">
                 <div style="margin-bottom: 16px;">
                     <h3>Customers</h3>
-                    <?php if ($formData['customer_business_name'] !== ''): ?>
-                        <p>
-                            <strong><?= htmlspecialchars($formData['customer_business_name']) ?></strong>
-                            <?php if ($formData['customer_contact_name'] !== ''): ?>
-                                &ndash; <?= htmlspecialchars($formData['customer_contact_name']) ?>
-                            <?php endif; ?>
-                        </p>
-                        <?php if ($formData['customer_abn'] !== ''): ?>
-                            <p><small>ABN: <?= htmlspecialchars($formData['customer_abn']) ?></small></p>
-                        <?php endif; ?>
-                    <?php else: ?>
-                        <p>No customer selected yet.</p>
-                    <?php endif; ?>
-                    <p><a href="<?= htmlspecialchars($addCustomerUrl) ?>">Add Customer</a></p>
+                    <?php
+                    $customerSummary = '';
+                    if ($formData['customer_business_name'] !== '') {
+                        $customerSummary = $formData['customer_business_name'];
+                        if ($formData['customer_contact_name'] !== '') {
+                            $customerSummary .= ' - ' . $formData['customer_contact_name'];
+                        }
+                    }
+                    ?>
+                    <p>
+                        <input
+                            type="text"
+                            value="<?= htmlspecialchars($customerSummary) ?>"
+                            readonly
+                            style="width: 100%; max-width: 360px;"
+                        >
+                        <a href="<?= htmlspecialchars($selectCustomerUrl) ?>" style="margin-left: 8px;">Select Customer</a>
+                    </p>
                     <input type="hidden" name="customer_business_name" value="<?= htmlspecialchars($formData['customer_business_name']) ?>">
                     <input type="hidden" name="customer_contact_name" value="<?= htmlspecialchars($formData['customer_contact_name']) ?>">
                     <input type="hidden" name="customer_abn" value="<?= htmlspecialchars($formData['customer_abn']) ?>">
@@ -305,34 +309,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div style="margin-bottom: 16px;">
                     <h3>Partner</h3>
-                    <?php if ($formData['partner_company_name'] !== ''): ?>
-                        <p>
-                            <strong><?= htmlspecialchars($formData['partner_company_name']) ?></strong>
-                            <?php if ($formData['partner_contact_name'] !== ''): ?>
-                                &ndash; <?= htmlspecialchars($formData['partner_contact_name']) ?>
-                            <?php endif; ?>
-                        </p>
-                    <?php else: ?>
-                        <p>No partner selected yet.</p>
-                    <?php endif; ?>
-                    <p><a href="<?= htmlspecialchars($addPartnerUrl) ?>">Add Partner</a></p>
+                    <?php
+                    $partnerSummary = '';
+                    if ($formData['partner_company_name'] !== '') {
+                        $partnerSummary = $formData['partner_company_name'];
+                        if ($formData['partner_contact_name'] !== '') {
+                            $partnerSummary .= ' - ' . $formData['partner_contact_name'];
+                        }
+                    }
+                    ?>
+                    <p>
+                        <input
+                            type="text"
+                            value="<?= htmlspecialchars($partnerSummary) ?>"
+                            readonly
+                            style="width: 100%; max-width: 360px;"
+                        >
+                        <a href="<?= htmlspecialchars($selectPartnerUrl) ?>" style="margin-left: 8px;">Select Partner</a>
+                    </p>
                     <input type="hidden" name="partner_company_name" value="<?= htmlspecialchars($formData['partner_company_name']) ?>">
                     <input type="hidden" name="partner_contact_name" value="<?= htmlspecialchars($formData['partner_contact_name']) ?>">
                 </div>
 
                 <div>
                     <h3>Broker</h3>
-                    <?php if ($formData['broker_company_name'] !== ''): ?>
-                        <p>
-                            <strong><?= htmlspecialchars($formData['broker_company_name']) ?></strong>
-                            <?php if ($formData['broker_consultant'] !== ''): ?>
-                                &ndash; <?= htmlspecialchars($formData['broker_consultant']) ?>
-                            <?php endif; ?>
-                        </p>
-                    <?php else: ?>
-                        <p>No broker selected yet.</p>
-                    <?php endif; ?>
-                    <p><a href="<?= htmlspecialchars($addBrokerUrl) ?>">Add Broker</a></p>
+                    <?php
+                    $brokerSummary = '';
+                    if ($formData['broker_company_name'] !== '') {
+                        $brokerSummary = $formData['broker_company_name'];
+                        if ($formData['broker_consultant'] !== '') {
+                            $brokerSummary .= ' - ' . $formData['broker_consultant'];
+                        }
+                    }
+                    ?>
+                    <p>
+                        <input
+                            type="text"
+                            value="<?= htmlspecialchars($brokerSummary) ?>"
+                            readonly
+                            style="width: 100%; max-width: 360px;"
+                        >
+                        <a href="<?= htmlspecialchars($selectBrokerUrl) ?>" style="margin-left: 8px;">Select Broker</a>
+                    </p>
                     <input type="hidden" name="broker_company_name" value="<?= htmlspecialchars($formData['broker_company_name']) ?>">
                     <input type="hidden" name="broker_consultant" value="<?= htmlspecialchars($formData['broker_consultant']) ?>">
                 </div>
