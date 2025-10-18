@@ -5,11 +5,12 @@ require_once __DIR__ . '/../includes/helpers.php';
 $pdo = getDbConnection();
 
 $formData = [
-    'report_date' => '',
+    'report_date' => date('Y-m-d'),
     'customer_business_name' => '',
     'customer_contact_name' => '',
     'customer_abn' => '',
     'partner_company_name' => '',
+    'partner_contact_name' => '',
     'broker_company_name' => '',
     'broker_consultant' => '',
     'site_nmi' => '',
@@ -65,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $otherCosts = array_values($_POST['other_costs'] ?? $otherCosts);
 
     if ($formData['customer_business_name'] === '') {
-        $errors[] = 'Customer business name is required.';
+        $errors[] = 'Please add a customer before creating the report.';
     }
 
     if (empty($errors)) {
@@ -277,42 +278,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="post">
+            <input type="hidden" name="report_date" value="<?= htmlspecialchars($formData['report_date']) ?>">
+
             <h2>Report Details</h2>
             <div style="padding: 12px 0;">
-                <p>
-                    <label for="report_date">Report Date</label><br>
-                    <input id="report_date" type="date" name="report_date" value="<?= htmlspecialchars($formData['report_date']) ?>">
-                </p>
-                <p>
-                    <label for="customer_business_name">Customer Business Name</label><br>
-                    <input id="customer_business_name" type="text" name="customer_business_name" size="40" value="<?= htmlspecialchars($formData['customer_business_name']) ?>" required>
-                    <br>
-                    <a href="<?= htmlspecialchars($addCustomerUrl) ?>">Add Customer</a>
-                </p>
-                <p>
-                    <label for="customer_contact_name">Customer Contact Name</label><br>
-                    <input id="customer_contact_name" type="text" name="customer_contact_name" size="40" value="<?= htmlspecialchars($formData['customer_contact_name']) ?>">
-                </p>
-                <p>
-                    <label for="customer_abn">Customer ABN</label><br>
-                    <input id="customer_abn" type="text" name="customer_abn" size="20" value="<?= htmlspecialchars($formData['customer_abn']) ?>">
-                </p>
-                <p>
-                    <label for="partner_company_name">Partner Company</label><br>
-                    <input id="partner_company_name" type="text" name="partner_company_name" size="40" value="<?= htmlspecialchars($formData['partner_company_name']) ?>">
-                    <br>
-                    <a href="<?= htmlspecialchars($addPartnerUrl) ?>">Add Partner</a>
-                </p>
-                <p>
-                    <label for="broker_company_name">Broker Company</label><br>
-                    <input id="broker_company_name" type="text" name="broker_company_name" size="40" value="<?= htmlspecialchars($formData['broker_company_name']) ?>">
-                    <br>
-                    <a href="<?= htmlspecialchars($addBrokerUrl) ?>">Add Broker</a>
-                </p>
-                <p>
-                    <label for="broker_consultant">Broker Consultant</label><br>
-                    <input id="broker_consultant" type="text" name="broker_consultant" size="40" value="<?= htmlspecialchars($formData['broker_consultant']) ?>">
-                </p>
+                <div style="margin-bottom: 16px;">
+                    <h3>Customers</h3>
+                    <?php if ($formData['customer_business_name'] !== ''): ?>
+                        <p>
+                            <strong><?= htmlspecialchars($formData['customer_business_name']) ?></strong>
+                            <?php if ($formData['customer_contact_name'] !== ''): ?>
+                                &ndash; <?= htmlspecialchars($formData['customer_contact_name']) ?>
+                            <?php endif; ?>
+                        </p>
+                        <?php if ($formData['customer_abn'] !== ''): ?>
+                            <p><small>ABN: <?= htmlspecialchars($formData['customer_abn']) ?></small></p>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <p>No customer selected yet.</p>
+                    <?php endif; ?>
+                    <p><a href="<?= htmlspecialchars($addCustomerUrl) ?>">Add Customer</a></p>
+                    <input type="hidden" name="customer_business_name" value="<?= htmlspecialchars($formData['customer_business_name']) ?>">
+                    <input type="hidden" name="customer_contact_name" value="<?= htmlspecialchars($formData['customer_contact_name']) ?>">
+                    <input type="hidden" name="customer_abn" value="<?= htmlspecialchars($formData['customer_abn']) ?>">
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <h3>Partner</h3>
+                    <?php if ($formData['partner_company_name'] !== ''): ?>
+                        <p>
+                            <strong><?= htmlspecialchars($formData['partner_company_name']) ?></strong>
+                            <?php if ($formData['partner_contact_name'] !== ''): ?>
+                                &ndash; <?= htmlspecialchars($formData['partner_contact_name']) ?>
+                            <?php endif; ?>
+                        </p>
+                    <?php else: ?>
+                        <p>No partner selected yet.</p>
+                    <?php endif; ?>
+                    <p><a href="<?= htmlspecialchars($addPartnerUrl) ?>">Add Partner</a></p>
+                    <input type="hidden" name="partner_company_name" value="<?= htmlspecialchars($formData['partner_company_name']) ?>">
+                    <input type="hidden" name="partner_contact_name" value="<?= htmlspecialchars($formData['partner_contact_name']) ?>">
+                </div>
+
+                <div>
+                    <h3>Broker</h3>
+                    <?php if ($formData['broker_company_name'] !== ''): ?>
+                        <p>
+                            <strong><?= htmlspecialchars($formData['broker_company_name']) ?></strong>
+                            <?php if ($formData['broker_consultant'] !== ''): ?>
+                                &ndash; <?= htmlspecialchars($formData['broker_consultant']) ?>
+                            <?php endif; ?>
+                        </p>
+                    <?php else: ?>
+                        <p>No broker selected yet.</p>
+                    <?php endif; ?>
+                    <p><a href="<?= htmlspecialchars($addBrokerUrl) ?>">Add Broker</a></p>
+                    <input type="hidden" name="broker_company_name" value="<?= htmlspecialchars($formData['broker_company_name']) ?>">
+                    <input type="hidden" name="broker_consultant" value="<?= htmlspecialchars($formData['broker_consultant']) ?>">
+                </div>
             </div>
 
             <h2>Site Information</h2>

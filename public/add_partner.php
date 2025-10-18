@@ -176,6 +176,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'partner_company_name' => $newPartnerData['partner_name'],
                 ];
 
+                if ($newPartnerData['contact_name'] !== '') {
+                    $prefill['partner_contact_name'] = $newPartnerData['contact_name'];
+                }
+
                 $selectedBroker = null;
                 foreach ($brokers as $broker) {
                     if ((int) $broker['id'] === $brokerId) {
@@ -281,6 +285,10 @@ $returnLabel = determineReturnLabel($returnTo);
                     $prefill = [
                         'partner_company_name' => $result['partner_name'],
                     ];
+
+                    if (!empty($result['contact_name'])) {
+                        $prefill['partner_contact_name'] = $result['contact_name'];
+                    }
 
                     if (!empty($result['broker_name'])) {
                         $prefill['broker_company_name'] = $result['broker_name'];
