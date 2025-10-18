@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/layout.php';
 
 $pdo = getDbConnection();
 
@@ -13,26 +14,13 @@ $reports = $statement ? $statement->fetchAll(PDO::FETCH_ASSOC) : [];
     <title>Centralis Reports</title>
 </head>
 <body>
-<header>
-    <div>
-        <h1>Centralis</h1>
-    </div>
-    <nav class="navbar-main">
-        <a href="index.php">Dashboard</a> |
-        <a href="#">Accounts</a> |
-        <a href="reports.php">Reports</a> |
-        <a href="#">Billing</a> |
-        <a href="#">Tasks</a> |
-        <a href="#">Settings</a>
-    </nav>
-    <br>
-    <nav class="navbar-sub">
-        <a href="create_report.php">Create Report</a>
-    </nav>
-</header>
+<?php renderHeader('Reports', [
+    ['href' => 'create_report.php', 'label' => 'Create Report'],
+]); ?>
 
 <main>
     <section>
+        <h1>Reports</h1>
         <h2>Existing Reports</h2>
         <?php if (empty($reports)): ?>
             <p>No reports have been created yet. <a href="create_report.php">Create your first report</a>.</p>

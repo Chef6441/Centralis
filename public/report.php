@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/../includes/layout.php';
 
 $pdo = getDbConnection();
 
@@ -53,22 +54,15 @@ $termHeadings = [
     </style>
 </head>
 <body>
-<header>
-    <nav class="navbar-main">
-        <a href="index.php">Dashboard</a> |
-        <a href="#">Accounts</a> |
-        <a href="reports.php">Reports</a> |
-        <a href="#">Billing</a> |
-        <a href="#">Tasks</a> |
-        <a href="#">Settings</a>
-    </nav>
-    <br>
-    <nav class="navbar-sub">
-        <a href="create_report.php">Create Report</a> |
-        <a href="edit_report.php?id=<?= urlencode($reportId) ?>">Edit Report</a> |
-        <a href="#" onclick="return confirmDeleteReport();">Delete Report</a>
-    </nav>
-</header>
+<?php renderHeader('Report Details', [
+    ['href' => 'create_report.php', 'label' => 'Create Report'],
+    ['href' => 'edit_report.php?id=' . urlencode($reportId), 'label' => 'Edit Report'],
+    [
+        'href' => '#',
+        'label' => 'Delete Report',
+        'attributes' => ['onclick' => 'return confirmDeleteReport();'],
+    ],
+]); ?>
 <main>
     <section class="report-section">
         <h1>Energy Price Comparison</h1>

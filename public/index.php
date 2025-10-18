@@ -1,3 +1,6 @@
+<?php
+require_once __DIR__ . '/../includes/layout.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,21 +8,7 @@
     <title>Centralis</title>
 </head>
 <body>
-<header>
-    <div>
-        <h1>Centralis</h1>
-    </div>
-    <nav class="navbar-main">
-        <a href="index.php">Dashboard</a> |
-        <a href="#">Accounts</a> |
-        <a href="reports.php">Reports</a> |
-        <a href="#">Billing</a> |
-        <a href="#">Tasks</a> |
-        <a href="#">Settings</a>
-    </nav>
-    <br>
-    <nav class="navbar-sub"></nav>
-</header>
+<?php renderHeader('Dashboard'); ?>
 
 <main>
     <section>

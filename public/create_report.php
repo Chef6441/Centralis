@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/../includes/layout.php';
 
 $pdo = getDbConnection();
 
@@ -250,24 +251,13 @@ $selectBrokerUrl = 'add_broker.php?return_to=' . rawurlencode($returnToPath);
     </script>
 </head>
 <body>
-<header>
-    <nav class="navbar-main">
-        <a href="index.php">Dashboard</a> |
-        <a href="#">Accounts</a> |
-        <a href="reports.php">Reports</a> |
-        <a href="#">Billing</a> |
-        <a href="#">Tasks</a> |
-        <a href="#">Settings</a>
-    </nav>
-    <br>
-    <nav class="navbar-sub">
-        <a href="reports.php">Back to Reports</a>
-    </nav>
-    <h1>Create Energy Report</h1>
-</header>
+<?php renderHeader('Create Energy Report', [
+    ['href' => 'reports.php', 'label' => 'Back to Reports'],
+]); ?>
 
 <main>
     <section style="padding: 16px;">
+        <h1>Create Energy Report</h1>
         <?php if (!empty($errors)): ?>
             <div>
                 <ul>
