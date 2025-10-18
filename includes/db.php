@@ -39,7 +39,7 @@ function initializeDatabase(PDO $pdo): void
     $hasReportsTable = $statement !== false && $statement->fetchColumn() !== false;
 
     if ($hasReportsTable) {
-        ensureReportsTableHasCustomerAbn($pdo);
+        ensureReportsTableHasAdditionalColumns($pdo);
         return;
     }
 
@@ -54,22 +54,30 @@ function initializeDatabase(PDO $pdo): void
     }
 
     $pdo->exec($schemaSql);
-    ensureReportsTableHasCustomerAbn($pdo);
+    ensureReportsTableHasAdditionalColumns($pdo);
 }
 
 /**
- * Adds the customer_abn column to the reports table when missing.
+ * Adds optional columns to the reports table when missing.
  */
-function ensureReportsTableHasCustomerAbn(PDO $pdo): void
+function ensureReportsTableHasAdditionalColumns(PDO $pdo): void
 {
     $statement = $pdo->query('PRAGMA table_info(reports)');
     $columns = $statement !== false ? $statement->fetchAll(PDO::FETCH_ASSOC) : [];
 
-    foreach ($columns as $column) {
-        if (($column['name'] ?? '') === 'customer_abn') {
-            return;
+    $existingColumns = array_map(static function (array $column): string {
+        return (string) ($column['name'] ?? '');
+    }, $columns);
+
+    $alterStatements = [
+        'customer_abn' => 'ALTER TABLE reports ADD COLUMN customer_abn TEXT',
+        'partner_company_name' => 'ALTER TABLE reports ADD COLUMN partner_company_name TEXT',
+        'broker_company_name' => 'ALTER TABLE reports ADD COLUMN broker_company_name TEXT',
+    ];
+
+    foreach ($alterStatements as $columnName => $sql) {
+        if (!in_array($columnName, $existingColumns, true)) {
+            $pdo->exec($sql);
         }
     }
-
-    $pdo->exec('ALTER TABLE reports ADD COLUMN customer_abn TEXT');
 }

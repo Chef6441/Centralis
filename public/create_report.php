@@ -9,6 +9,8 @@ $formData = [
     'customer_business_name' => '',
     'customer_contact_name' => '',
     'customer_abn' => '',
+    'partner_company_name' => '',
+    'broker_company_name' => '',
     'broker_consultant' => '',
     'site_nmi' => '',
     'site_current_retailer' => '',
@@ -42,6 +44,18 @@ $otherCosts = [
 $errors = [];
 $reportIdentifier = null;
 
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' && isset($_GET['prefill']) && is_array($_GET['prefill'])) {
+    foreach ($_GET['prefill'] as $key => $value) {
+        if (array_key_exists($key, $formData)) {
+            $formData[$key] = trim((string) $value);
+        }
+    }
+}
+
+$addCustomerUrl = 'add_customer.php?return_to=' . urlencode('create_report.php');
+$addPartnerUrl = 'add_partner.php?return_to=' . urlencode('create_report.php');
+$addBrokerUrl = 'add_broker.php?return_to=' . urlencode('create_report.php');
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach (array_keys($formData) as $key) {
         $formData[$key] = trim((string)($_POST[$key] ?? ''));
@@ -70,6 +84,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 customer_business_name,
                 customer_contact_name,
                 customer_abn,
+                partner_company_name,
+                broker_company_name,
                 broker_consultant,
                 site_nmi,
                 site_current_retailer,
@@ -92,6 +108,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 :customer_business_name,
                 :customer_contact_name,
                 :customer_abn,
+                :partner_company_name,
+                :broker_company_name,
                 :broker_consultant,
                 :site_nmi,
                 :site_current_retailer,
@@ -117,6 +135,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':customer_business_name' => $formData['customer_business_name'],
             ':customer_contact_name' => $formData['customer_contact_name'] ?: null,
             ':customer_abn' => $formData['customer_abn'] ?: null,
+            ':partner_company_name' => $formData['partner_company_name'] ?: null,
+            ':broker_company_name' => $formData['broker_company_name'] ?: null,
             ':broker_consultant' => $formData['broker_consultant'] ?: null,
             ':site_nmi' => $formData['site_nmi'] ?: null,
             ':site_current_retailer' => $formData['site_current_retailer'] ?: null,
@@ -266,6 +286,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <p>
                     <label for="customer_business_name">Customer Business Name</label><br>
                     <input id="customer_business_name" type="text" name="customer_business_name" size="40" value="<?= htmlspecialchars($formData['customer_business_name']) ?>" required>
+                    <br>
+                    <a href="<?= htmlspecialchars($addCustomerUrl) ?>">Add Customer</a>
                 </p>
                 <p>
                     <label for="customer_contact_name">Customer Contact Name</label><br>
@@ -274,6 +296,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <p>
                     <label for="customer_abn">Customer ABN</label><br>
                     <input id="customer_abn" type="text" name="customer_abn" size="20" value="<?= htmlspecialchars($formData['customer_abn']) ?>">
+                </p>
+                <p>
+                    <label for="partner_company_name">Partner Company</label><br>
+                    <input id="partner_company_name" type="text" name="partner_company_name" size="40" value="<?= htmlspecialchars($formData['partner_company_name']) ?>">
+                    <br>
+                    <a href="<?= htmlspecialchars($addPartnerUrl) ?>">Add Partner</a>
+                </p>
+                <p>
+                    <label for="broker_company_name">Broker Company</label><br>
+                    <input id="broker_company_name" type="text" name="broker_company_name" size="40" value="<?= htmlspecialchars($formData['broker_company_name']) ?>">
+                    <br>
+                    <a href="<?= htmlspecialchars($addBrokerUrl) ?>">Add Broker</a>
                 </p>
                 <p>
                     <label for="broker_consultant">Broker Consultant</label><br>
