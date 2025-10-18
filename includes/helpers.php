@@ -114,16 +114,32 @@ function generateReportIdentifier(PDO $pdo): string
  * 11 => Network charges
  * 12 => Subtotal
  */
-function parseSiteNmiBulkInput(string $input): array
+function parseSiteNmiBulkInput(string $input, ?array &$errors = null): array
 {
-    $lines = preg_split('/\r\n|\r|\n/', trim($input));
     $rows = [];
+    $collectedErrors = [];
+    $trimmedInput = trim($input);
+
+    if ($trimmedInput === '') {
+        if ($errors !== null) {
+            $errors = [];
+        }
+
+        return $rows;
+    }
+
+    $lines = preg_split('/\r\n|\r|\n/', $trimmedInput);
 
     if ($lines === false) {
+        if ($errors !== null) {
+            $errors = ['Unable to read the provided NMI data.'];
+        }
+
         return $rows;
     }
 
     foreach ($lines as $index => $line) {
+        $lineNumber = $index + 1;
         $line = trim($line);
 
         if ($line === '') {
@@ -144,9 +160,16 @@ function parseSiteNmiBulkInput(string $input): array
             }
         }
 
-        $row = [
+        $nmi = trim((string)($columns[1] ?? ''));
+
+        if ($nmi === '') {
+            $collectedErrors[] = "Row {$lineNumber} is missing an NMI value.";
+            continue;
+        }
+
+        $rows[] = [
             'site_label' => trim((string)($columns[0] ?? '')),
-            'nmi' => trim((string)($columns[1] ?? '')),
+            'nmi' => $nmi,
             'status' => trim((string)($columns[2] ?? '')),
             'tariff' => trim((string)($columns[3] ?? '')),
             'dlf' => trim((string)($columns[4] ?? '')),
@@ -159,12 +182,14 @@ function parseSiteNmiBulkInput(string $input): array
             'network_charge' => trim((string)($columns[11] ?? '')),
             'subtotal' => trim((string)($columns[12] ?? '')),
         ];
+    }
 
-        if ($row['nmi'] === '') {
-            continue;
-        }
+    if ($trimmedInput !== '' && empty($rows) && empty($collectedErrors)) {
+        $collectedErrors[] = 'No valid NMI rows were detected. Ensure each line includes an NMI value.';
+    }
 
-        $rows[] = $row;
+    if ($errors !== null) {
+        $errors = $collectedErrors;
     }
 
     return $rows;

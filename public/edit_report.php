@@ -82,6 +82,9 @@ if (!$otherCosts) {
 }
 
 $errors = [];
+$siteNmiParseErrors = [];
+$siteNmiParseRequested = false;
+$siteNmiParseMessage = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach (array_keys($formData) as $key) {
@@ -90,21 +93,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $contracts = array_values($_POST['contracts'] ?? $contracts);
     $otherCosts = array_values($_POST['other_costs'] ?? $otherCosts);
-    $siteNmiRows = parseSiteNmiBulkInput($formData['site_nmi_bulk']);
+    $siteNmiParseRequested = isset($_POST['parse_site_nmi']);
+    $siteNmiRows = parseSiteNmiBulkInput($formData['site_nmi_bulk'], $siteNmiParseErrors);
 
     if ($formData['site_nmi'] === '' && !empty($siteNmiRows)) {
         $formData['site_nmi'] = $siteNmiRows[0]['nmi'];
     }
 
-    if ($formData['customer_business_name'] === '') {
-        $errors[] = 'Customer business name is required.';
-    }
+    if ($siteNmiParseRequested) {
+        if (!empty($siteNmiRows)) {
+            $count = count($siteNmiRows);
+            $siteNmiParseMessage = sprintf('Parsed %d site%s from the bulk input.', $count, $count === 1 ? '' : 's');
+        } else {
+            $siteNmiParseMessage = 'No site NMIs were detected in the provided input.';
+        }
+    } else {
+        if (!empty($siteNmiParseErrors)) {
+            $errors = array_merge($errors, $siteNmiParseErrors);
+        }
 
-    if (empty($errors)) {
-        try {
-            $pdo->beginTransaction();
+        if ($formData['customer_business_name'] === '') {
+            $errors[] = 'Customer business name is required.';
+        }
 
-            $updateReport = $pdo->prepare(
+        if (empty($errors)) {
+            try {
+                $pdo->beginTransaction();
+
+                $updateReport = $pdo->prepare(
                 'UPDATE reports SET
                     report_date = :report_date,
                     customer_business_name = :customer_business_name,
@@ -129,36 +145,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 WHERE id = :id'
             );
 
-            $updateReport->execute([
-                ':report_date' => $formData['report_date'] ?: null,
-                ':customer_business_name' => $formData['customer_business_name'],
-                ':customer_contact_name' => $formData['customer_contact_name'] ?: null,
-                ':customer_abn' => $formData['customer_abn'] ?: null,
-                ':broker_consultant' => $formData['broker_consultant'] ?: null,
-                ':site_nmi' => $formData['site_nmi'] ?: null,
-                ':site_current_retailer' => $formData['site_current_retailer'] ?: null,
-                ':site_contract_end_date' => $formData['site_contract_end_date'] ?: null,
-                ':site_address_line1' => $formData['site_address_line1'] ?: null,
-                ':site_address_line2' => $formData['site_address_line2'] ?: null,
-                ':site_peak_kwh' => $formData['site_peak_kwh'] !== '' ? (float) $formData['site_peak_kwh'] : null,
-                ':site_shoulder_kwh' => $formData['site_shoulder_kwh'] !== '' ? (float) $formData['site_shoulder_kwh'] : null,
-                ':site_off_peak_kwh' => $formData['site_off_peak_kwh'] !== '' ? (float) $formData['site_off_peak_kwh'] : null,
-                ':site_total_kwh' => $formData['site_total_kwh'] !== '' ? (float) $formData['site_total_kwh'] : null,
-                ':contract_current_retailer' => $formData['contract_current_retailer'] ?: null,
-                ':contract_term_months' => $formData['contract_term_months'] !== '' ? (int) $formData['contract_term_months'] : null,
-                ':current_cost' => parseCurrency($formData['current_cost']),
-                ':new_cost' => parseCurrency($formData['new_cost']),
-                ':validity_period' => $formData['validity_period'] ?: null,
-                ':payment_terms' => $formData['payment_terms'] ?: null,
-                ':id' => $reportId,
-            ]);
+                $updateReport->execute([
+                    ':report_date' => $formData['report_date'] ?: null,
+                    ':customer_business_name' => $formData['customer_business_name'],
+                    ':customer_contact_name' => $formData['customer_contact_name'] ?: null,
+                    ':customer_abn' => $formData['customer_abn'] ?: null,
+                    ':broker_consultant' => $formData['broker_consultant'] ?: null,
+                    ':site_nmi' => $formData['site_nmi'] ?: null,
+                    ':site_current_retailer' => $formData['site_current_retailer'] ?: null,
+                    ':site_contract_end_date' => $formData['site_contract_end_date'] ?: null,
+                    ':site_address_line1' => $formData['site_address_line1'] ?: null,
+                    ':site_address_line2' => $formData['site_address_line2'] ?: null,
+                    ':site_peak_kwh' => $formData['site_peak_kwh'] !== '' ? (float) $formData['site_peak_kwh'] : null,
+                    ':site_shoulder_kwh' => $formData['site_shoulder_kwh'] !== '' ? (float) $formData['site_shoulder_kwh'] : null,
+                    ':site_off_peak_kwh' => $formData['site_off_peak_kwh'] !== '' ? (float) $formData['site_off_peak_kwh'] : null,
+                    ':site_total_kwh' => $formData['site_total_kwh'] !== '' ? (float) $formData['site_total_kwh'] : null,
+                    ':contract_current_retailer' => $formData['contract_current_retailer'] ?: null,
+                    ':contract_term_months' => $formData['contract_term_months'] !== '' ? (int) $formData['contract_term_months'] : null,
+                    ':current_cost' => parseCurrency($formData['current_cost']),
+                    ':new_cost' => parseCurrency($formData['new_cost']),
+                    ':validity_period' => $formData['validity_period'] ?: null,
+                    ':payment_terms' => $formData['payment_terms'] ?: null,
+                    ':id' => $reportId,
+                ]);
 
-            $pdo->prepare('DELETE FROM contract_offers WHERE report_id = :report_id')->execute([':report_id' => $reportId]);
-            $pdo->prepare('DELETE FROM other_costs WHERE report_id = :report_id')->execute([':report_id' => $reportId]);
-            $pdo->prepare('DELETE FROM report_site_nmis WHERE report_id = :report_id')->execute([':report_id' => $reportId]);
+                $pdo->prepare('DELETE FROM contract_offers WHERE report_id = :report_id')->execute([':report_id' => $reportId]);
+                $pdo->prepare('DELETE FROM other_costs WHERE report_id = :report_id')->execute([':report_id' => $reportId]);
+                $pdo->prepare('DELETE FROM report_site_nmis WHERE report_id = :report_id')->execute([':report_id' => $reportId]);
 
-            if (!empty($siteNmiRows)) {
-                $insertSiteNmi = $pdo->prepare(
+                if (!empty($siteNmiRows)) {
+                    $insertSiteNmi = $pdo->prepare(
                     'INSERT INTO report_site_nmis (
                         report_id,
                         site_label,
@@ -192,32 +208,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     )'
                 );
 
-                foreach ($siteNmiRows as $row) {
-                    $insertSiteNmi->execute([
-                        ':report_id' => $reportId,
-                        ':site_label' => $row['site_label'] ?: null,
-                        ':nmi' => $row['nmi'],
-                        ':status' => $row['status'] ?: null,
-                        ':tariff' => $row['tariff'] ?: null,
-                        ':dlf' => $row['dlf'] ?: null,
-                        ':kva' => $row['kva'] ?: null,
-                        ':avg_kw_demand' => $row['avg_kw_demand'] ?: null,
-                        ':avg_kva_demand' => $row['avg_kva_demand'] ?: null,
-                        ':avg_daily_consumption' => $row['avg_daily_consumption'] ?: null,
-                        ':avg_daily_demand_charge' => $row['avg_daily_demand_charge'] ?: null,
-                        ':demand_charge' => $row['demand_charge'] ?: null,
-                        ':network_charge' => $row['network_charge'] ?: null,
-                        ':subtotal' => $row['subtotal'] ?: null,
-                    ]);
+                    foreach ($siteNmiRows as $row) {
+                        $insertSiteNmi->execute([
+                            ':report_id' => $reportId,
+                            ':site_label' => $row['site_label'] ?: null,
+                            ':nmi' => $row['nmi'],
+                            ':status' => $row['status'] ?: null,
+                            ':tariff' => $row['tariff'] ?: null,
+                            ':dlf' => $row['dlf'] ?: null,
+                            ':kva' => $row['kva'] ?: null,
+                            ':avg_kw_demand' => $row['avg_kw_demand'] ?: null,
+                            ':avg_kva_demand' => $row['avg_kva_demand'] ?: null,
+                            ':avg_daily_consumption' => $row['avg_daily_consumption'] ?: null,
+                            ':avg_daily_demand_charge' => $row['avg_daily_demand_charge'] ?: null,
+                            ':demand_charge' => $row['demand_charge'] ?: null,
+                            ':network_charge' => $row['network_charge'] ?: null,
+                            ':subtotal' => $row['subtotal'] ?: null,
+                        ]);
+                    }
                 }
-            }
 
-            $insertContract = $pdo->prepare(
-                'INSERT INTO contract_offers (
-                    report_id,
-                    supplier_name,
-                    term_months,
-                    peak_rate,
+                $insertContract = $pdo->prepare(
+                    'INSERT INTO contract_offers (
+                        report_id,
+                        supplier_name,
+                        term_months,
+                        peak_rate,
                     shoulder_rate,
                     off_peak_rate,
                     total_cost,
@@ -236,56 +252,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 )'
             );
 
-            foreach ($contracts as $contract) {
-                $supplier = trim((string)($contract['supplier_name'] ?? ''));
-                $term = isset($contract['term_months']) ? (int) $contract['term_months'] : null;
+                foreach ($contracts as $contract) {
+                    $supplier = trim((string)($contract['supplier_name'] ?? ''));
+                    $term = isset($contract['term_months']) ? (int) $contract['term_months'] : null;
 
-                if ($supplier === '' || !$term) {
-                    continue;
+                    if ($supplier === '' || !$term) {
+                        continue;
+                    }
+
+                    $insertContract->execute([
+                        ':report_id' => $reportId,
+                        ':supplier_name' => $supplier,
+                        ':term_months' => $term,
+                        ':peak_rate' => $contract['peak_rate'] !== '' ? (float) $contract['peak_rate'] : null,
+                        ':shoulder_rate' => $contract['shoulder_rate'] !== '' ? (float) $contract['shoulder_rate'] : null,
+                        ':off_peak_rate' => $contract['off_peak_rate'] !== '' ? (float) $contract['off_peak_rate'] : null,
+                        ':total_cost' => $contract['total_cost'] !== '' ? parseCurrency((string)$contract['total_cost']) : null,
+                        ':diff_dollar' => $contract['diff_dollar'] !== '' ? parseCurrency((string)$contract['diff_dollar']) : null,
+                        ':diff_percentage' => $contract['diff_percentage'] !== '' ? (float) $contract['diff_percentage'] : null,
+                    ]);
                 }
 
-                $insertContract->execute([
-                    ':report_id' => $reportId,
-                    ':supplier_name' => $supplier,
-                    ':term_months' => $term,
-                    ':peak_rate' => $contract['peak_rate'] !== '' ? (float) $contract['peak_rate'] : null,
-                    ':shoulder_rate' => $contract['shoulder_rate'] !== '' ? (float) $contract['shoulder_rate'] : null,
-                    ':off_peak_rate' => $contract['off_peak_rate'] !== '' ? (float) $contract['off_peak_rate'] : null,
-                    ':total_cost' => $contract['total_cost'] !== '' ? parseCurrency((string)$contract['total_cost']) : null,
-                    ':diff_dollar' => $contract['diff_dollar'] !== '' ? parseCurrency((string)$contract['diff_dollar']) : null,
-                    ':diff_percentage' => $contract['diff_percentage'] !== '' ? (float) $contract['diff_percentage'] : null,
-                ]);
-            }
+                $insertOtherCost = $pdo->prepare(
+                    'INSERT INTO other_costs (report_id, cost_label, cost_amount) VALUES (:report_id, :cost_label, :cost_amount)'
+                );
 
-            $insertOtherCost = $pdo->prepare(
-                'INSERT INTO other_costs (report_id, cost_label, cost_amount) VALUES (:report_id, :cost_label, :cost_amount)'
-            );
+                foreach ($otherCosts as $otherCost) {
+                    $label = trim((string)($otherCost['cost_label'] ?? ''));
+                    $amount = isset($otherCost['cost_amount']) ? parseCurrency((string)$otherCost['cost_amount']) : null;
 
-            foreach ($otherCosts as $otherCost) {
-                $label = trim((string)($otherCost['cost_label'] ?? ''));
-                $amount = isset($otherCost['cost_amount']) ? parseCurrency((string)$otherCost['cost_amount']) : null;
+                    if ($label === '' || $amount === null) {
+                        continue;
+                    }
 
-                if ($label === '' || $amount === null) {
-                    continue;
+                    $insertOtherCost->execute([
+                        ':report_id' => $reportId,
+                        ':cost_label' => $label,
+                        ':cost_amount' => $amount,
+                    ]);
                 }
 
-                $insertOtherCost->execute([
-                    ':report_id' => $reportId,
-                    ':cost_label' => $label,
-                    ':cost_amount' => $amount,
-                ]);
+                $pdo->commit();
+
+                header('Location: report.php?id=' . $reportId);
+                exit;
+            } catch (Throwable $exception) {
+                $pdo->rollBack();
+                $errors[] = 'Unable to update the report. Please try again.';
             }
-
-            $pdo->commit();
-
-            header('Location: report.php?id=' . $reportId);
-            exit;
-        } catch (Throwable $exception) {
-            $pdo->rollBack();
-            $errors[] = 'Unable to update the report. Please try again.';
         }
     }
 }
+
+$showSiteNmiPreview = $siteNmiParseRequested || !empty($siteNmiParseErrors);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -407,6 +426,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div style="padding: 12px 0;">
                 <p>Paste tab-separated NMI data from Excel. Columns should follow this order: Site / Branch, NMI, Status, Tariff, DLF, kVA, Avg kW Demand, Avg kVA Demand, Avg Daily Consumption, Avg Daily Demand Charge, Demand Charge, Network Charges, Subtotal. A header row is optional and will be ignored.</p>
                 <textarea id="site_nmi_bulk" name="site_nmi_bulk" rows="8" cols="120" placeholder="Site / Branch<TAB>NMI<TAB>Status<TAB>..."><?= htmlspecialchars($formData['site_nmi_bulk']) ?></textarea>
+                <p>
+                    <button type="submit" name="parse_site_nmi" value="1" formnovalidate>Parse</button>
+                </p>
+                <?php if ($siteNmiParseMessage !== null): ?>
+                    <p><strong><?= htmlspecialchars($siteNmiParseMessage) ?></strong></p>
+                <?php endif; ?>
+                <?php if ($showSiteNmiPreview): ?>
+                    <?php if (!empty($siteNmiRows)): ?>
+                        <div style="overflow-x: auto;">
+                            <table border="1" cellpadding="6" cellspacing="0">
+                                <thead>
+                                <tr>
+                                    <th>Site / Branch</th>
+                                    <th>NMI</th>
+                                    <th>Status</th>
+                                    <th>Tariff</th>
+                                    <th>DLF</th>
+                                    <th>kVA</th>
+                                    <th>Avg kW Demand</th>
+                                    <th>Avg kVA Demand</th>
+                                    <th>Avg Daily Consumption</th>
+                                    <th>Avg Daily Demand Charge</th>
+                                    <th>Demand Charge</th>
+                                    <th>Network Charges</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <?php foreach ($siteNmiRows as $row): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($row['site_label']) ?></td>
+                                        <td><?= htmlspecialchars($row['nmi']) ?></td>
+                                        <td><?= htmlspecialchars($row['status']) ?></td>
+                                        <td><?= htmlspecialchars($row['tariff']) ?></td>
+                                        <td><?= htmlspecialchars($row['dlf']) ?></td>
+                                        <td><?= htmlspecialchars($row['kva']) ?></td>
+                                        <td><?= htmlspecialchars($row['avg_kw_demand']) ?></td>
+                                        <td><?= htmlspecialchars($row['avg_kva_demand']) ?></td>
+                                        <td><?= htmlspecialchars($row['avg_daily_consumption']) ?></td>
+                                        <td><?= htmlspecialchars($row['avg_daily_demand_charge']) ?></td>
+                                        <td><?= htmlspecialchars($row['demand_charge']) ?></td>
+                                        <td><?= htmlspecialchars($row['network_charge']) ?></td>
+                                        <td><?= htmlspecialchars($row['subtotal']) ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php elseif ($siteNmiParseRequested || !empty($siteNmiParseErrors)): ?>
+                        <p>No site NMIs could be parsed.</p>
+                    <?php endif; ?>
+                    <?php if (!empty($siteNmiParseErrors)): ?>
+                        <div style="margin-top: 8px;">
+                            <strong>Errors</strong>
+                            <ul>
+                                <?php foreach ($siteNmiParseErrors as $parseError): ?>
+                                    <li><?= htmlspecialchars($parseError) ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
+                <?php endif; ?>
             </div>
 
             <h2>Current Contract</h2>
