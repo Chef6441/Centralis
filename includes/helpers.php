@@ -184,7 +184,7 @@ function parseSiteNmiBulkInput(string $input, ?array &$errors = null): array
     ];
 
     $lineNumber = 0;
-    while (($columns = fgetcsv($handle, 0, "\t")) !== false) {
+    while (($columns = fgetcsv($handle, 0, "\t", '"', '\\')) !== false) {
         $lineNumber++;
 
         if ($columns === null) {
