@@ -102,6 +102,14 @@ $termHeadings = [
                 <td><?php $customerAbn = trim((string)($report['customer_abn'] ?? '')); echo $customerAbn !== '' ? htmlspecialchars($customerAbn) : 'N/A'; ?></td>
             </tr>
             <tr>
+                <th align="left">Partner Company</th>
+                <td><?php $partnerCompany = trim((string)($report['partner_company_name'] ?? '')); echo $partnerCompany !== '' ? htmlspecialchars($partnerCompany) : 'N/A'; ?></td>
+            </tr>
+            <tr>
+                <th align="left">Broker Company</th>
+                <td><?php $brokerCompany = trim((string)($report['broker_company_name'] ?? '')); echo $brokerCompany !== '' ? htmlspecialchars($brokerCompany) : 'N/A'; ?></td>
+            </tr>
+            <tr>
                 <th align="left">Energy Consultant</th>
                 <td><?= htmlspecialchars($report['broker_consultant'] ?? 'N/A') ?></td>
             </tr>
