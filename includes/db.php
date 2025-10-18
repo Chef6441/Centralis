@@ -89,6 +89,29 @@ function ensureReportsTableHasAdditionalColumns(PDO $pdo): void
 }
 
 /**
+ * Adds the customer_abn column to the reports table when missing.
+ */
+function ensureReportsTableHasCustomerAbn(PDO $pdo): void
+{
+    $statement = $pdo->query('PRAGMA table_info(reports)');
+    $columns = $statement !== false ? $statement->fetchAll(PDO::FETCH_ASSOC) : [];
+
+    $hasCustomerAbnColumn = array_reduce(
+        $columns,
+        static function (bool $carry, array $column): bool {
+            return $carry || ($column['name'] ?? '') === 'customer_abn';
+        },
+        false
+    );
+
+    if ($hasCustomerAbnColumn) {
+        return;
+    }
+
+    $pdo->exec('ALTER TABLE reports ADD COLUMN customer_abn TEXT');
+}
+
+/**
  * Creates foundational tables when upgrading an existing database.
  */
 function ensureCoreTablesExist(PDO $pdo): void
