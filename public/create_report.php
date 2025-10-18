@@ -5,10 +5,13 @@ require_once __DIR__ . '/../includes/helpers.php';
 $pdo = getDbConnection();
 
 $formData = [
-    'report_date' => '',
+    'report_date' => date('Y-m-d'),
     'customer_business_name' => '',
     'customer_contact_name' => '',
     'customer_abn' => '',
+    'partner_company_name' => '',
+    'partner_contact_name' => '',
+    'broker_company_name' => '',
     'broker_consultant' => '',
     'site_nmi' => '',
     'site_current_retailer' => '',
@@ -42,6 +45,14 @@ $otherCosts = [
 $errors = [];
 $reportIdentifier = null;
 
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' && isset($_GET['prefill']) && is_array($_GET['prefill'])) {
+    foreach ($_GET['prefill'] as $key => $value) {
+        if (array_key_exists($key, $formData)) {
+            $formData[$key] = trim((string) $value);
+        }
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach (array_keys($formData) as $key) {
         $formData[$key] = trim((string)($_POST[$key] ?? ''));
@@ -51,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $otherCosts = array_values($_POST['other_costs'] ?? $otherCosts);
 
     if ($formData['customer_business_name'] === '') {
-        $errors[] = 'Customer business name is required.';
+        $errors[] = 'Please select a customer before creating the report.';
     }
 
     if (empty($errors)) {
@@ -70,6 +81,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 customer_business_name,
                 customer_contact_name,
                 customer_abn,
+                partner_company_name,
+                broker_company_name,
                 broker_consultant,
                 site_nmi,
                 site_current_retailer,
@@ -92,6 +105,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 :customer_business_name,
                 :customer_contact_name,
                 :customer_abn,
+                :partner_company_name,
+                :broker_company_name,
                 :broker_consultant,
                 :site_nmi,
                 :site_current_retailer,
@@ -117,6 +132,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':customer_business_name' => $formData['customer_business_name'],
             ':customer_contact_name' => $formData['customer_contact_name'] ?: null,
             ':customer_abn' => $formData['customer_abn'] ?: null,
+            ':partner_company_name' => $formData['partner_company_name'] ?: null,
+            ':broker_company_name' => $formData['broker_company_name'] ?: null,
             ':broker_consultant' => $formData['broker_consultant'] ?: null,
             ':site_nmi' => $formData['site_nmi'] ?: null,
             ':site_current_retailer' => $formData['site_current_retailer'] ?: null,
@@ -205,6 +222,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 }
+
+$returnToPath = buildStakeholderReturnPath($formData, 'create_report.php');
+$selectCustomerUrl = 'add_customer.php?return_to=' . rawurlencode($returnToPath);
+$selectPartnerUrl = 'add_partner.php?return_to=' . rawurlencode($returnToPath);
+$selectBrokerUrl = 'add_broker.php?return_to=' . rawurlencode($returnToPath);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -257,28 +279,82 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="post">
+            <input type="hidden" name="report_date" value="<?= htmlspecialchars($formData['report_date']) ?>">
+
             <h2>Report Details</h2>
             <div style="padding: 12px 0;">
-                <p>
-                    <label for="report_date">Report Date</label><br>
-                    <input id="report_date" type="date" name="report_date" value="<?= htmlspecialchars($formData['report_date']) ?>">
-                </p>
-                <p>
-                    <label for="customer_business_name">Customer Business Name</label><br>
-                    <input id="customer_business_name" type="text" name="customer_business_name" size="40" value="<?= htmlspecialchars($formData['customer_business_name']) ?>" required>
-                </p>
-                <p>
-                    <label for="customer_contact_name">Customer Contact Name</label><br>
-                    <input id="customer_contact_name" type="text" name="customer_contact_name" size="40" value="<?= htmlspecialchars($formData['customer_contact_name']) ?>">
-                </p>
-                <p>
-                    <label for="customer_abn">Customer ABN</label><br>
-                    <input id="customer_abn" type="text" name="customer_abn" size="20" value="<?= htmlspecialchars($formData['customer_abn']) ?>">
-                </p>
-                <p>
-                    <label for="broker_consultant">Broker Consultant</label><br>
-                    <input id="broker_consultant" type="text" name="broker_consultant" size="40" value="<?= htmlspecialchars($formData['broker_consultant']) ?>">
-                </p>
+                <div style="margin-bottom: 16px;">
+                    <h3>Customers</h3>
+                    <?php
+                    $customerSummary = '';
+                    if ($formData['customer_business_name'] !== '') {
+                        $customerSummary = $formData['customer_business_name'];
+                        if ($formData['customer_contact_name'] !== '') {
+                            $customerSummary .= ' - ' . $formData['customer_contact_name'];
+                        }
+                    }
+                    ?>
+                    <p>
+                        <input
+                            type="text"
+                            value="<?= htmlspecialchars($customerSummary) ?>"
+                            readonly
+                            style="width: 100%; max-width: 360px;"
+                        >
+                        <a href="<?= htmlspecialchars($selectCustomerUrl) ?>" style="margin-left: 8px;">Select Customer</a>
+                    </p>
+                    <input type="hidden" name="customer_business_name" value="<?= htmlspecialchars($formData['customer_business_name']) ?>">
+                    <input type="hidden" name="customer_contact_name" value="<?= htmlspecialchars($formData['customer_contact_name']) ?>">
+                    <input type="hidden" name="customer_abn" value="<?= htmlspecialchars($formData['customer_abn']) ?>">
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <h3>Partner</h3>
+                    <?php
+                    $partnerSummary = '';
+                    if ($formData['partner_company_name'] !== '') {
+                        $partnerSummary = $formData['partner_company_name'];
+                        if ($formData['partner_contact_name'] !== '') {
+                            $partnerSummary .= ' - ' . $formData['partner_contact_name'];
+                        }
+                    }
+                    ?>
+                    <p>
+                        <input
+                            type="text"
+                            value="<?= htmlspecialchars($partnerSummary) ?>"
+                            readonly
+                            style="width: 100%; max-width: 360px;"
+                        >
+                        <a href="<?= htmlspecialchars($selectPartnerUrl) ?>" style="margin-left: 8px;">Select Partner</a>
+                    </p>
+                    <input type="hidden" name="partner_company_name" value="<?= htmlspecialchars($formData['partner_company_name']) ?>">
+                    <input type="hidden" name="partner_contact_name" value="<?= htmlspecialchars($formData['partner_contact_name']) ?>">
+                </div>
+
+                <div>
+                    <h3>Broker</h3>
+                    <?php
+                    $brokerSummary = '';
+                    if ($formData['broker_company_name'] !== '') {
+                        $brokerSummary = $formData['broker_company_name'];
+                        if ($formData['broker_consultant'] !== '') {
+                            $brokerSummary .= ' - ' . $formData['broker_consultant'];
+                        }
+                    }
+                    ?>
+                    <p>
+                        <input
+                            type="text"
+                            value="<?= htmlspecialchars($brokerSummary) ?>"
+                            readonly
+                            style="width: 100%; max-width: 360px;"
+                        >
+                        <a href="<?= htmlspecialchars($selectBrokerUrl) ?>" style="margin-left: 8px;">Select Broker</a>
+                    </p>
+                    <input type="hidden" name="broker_company_name" value="<?= htmlspecialchars($formData['broker_company_name']) ?>">
+                    <input type="hidden" name="broker_consultant" value="<?= htmlspecialchars($formData['broker_consultant']) ?>">
+                </div>
             </div>
 
             <h2>Site Information</h2>
