@@ -106,6 +106,8 @@ CREATE TABLE reports (
     customer_business_name TEXT NOT NULL,
     customer_contact_name TEXT,
     customer_abn TEXT,
+    partner_company_name TEXT,
+    broker_company_name TEXT,
     broker_consultant TEXT,
     site_nmi TEXT,
     site_current_retailer TEXT,

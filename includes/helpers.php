@@ -95,3 +95,35 @@ function generateReportIdentifier(PDO $pdo): string
 
     throw new RuntimeException('Unable to generate a unique report identifier.');
 }
+
+/**
+ * Builds a return path that preserves the current stakeholder selections.
+ */
+function buildStakeholderReturnPath(array $formData, string $basePath): string
+{
+    $prefillKeys = [
+        'customer_business_name',
+        'customer_contact_name',
+        'customer_abn',
+        'partner_company_name',
+        'partner_contact_name',
+        'broker_company_name',
+        'broker_consultant',
+    ];
+
+    $prefill = [];
+
+    foreach ($prefillKeys as $key) {
+        if (!empty($formData[$key])) {
+            $prefill[$key] = $formData[$key];
+        }
+    }
+
+    if (empty($prefill)) {
+        return $basePath;
+    }
+
+    $separator = strpos($basePath, '?') !== false ? '&' : '?';
+
+    return $basePath . $separator . http_build_query(['prefill' => $prefill]);
+}
