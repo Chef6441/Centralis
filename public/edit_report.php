@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/../includes/layout.php';
 
 $pdo = getDbConnection();
 
@@ -239,25 +240,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </script>
 </head>
 <body>
-<header>
-    <nav class="navbar-main">
-        <a href="index.php">Dashboard</a> |
-        <a href="#">Accounts</a> |
-        <a href="reports.php">Reports</a> |
-        <a href="#">Billing</a> |
-        <a href="#">Tasks</a> |
-        <a href="#">Settings</a>
-    </nav>
-    <br>
-    <nav class="navbar-sub">
-        <a href="report.php?id=<?= urlencode($reportId) ?>">View Report</a> |
-        <a href="reports.php">Back to Reports</a>
-    </nav>
-    <h1>Edit Energy Report</h1>
-</header>
+<?php renderHeader([
+    ['href' => 'report.php?id=' . urlencode($reportId), 'label' => 'View Report'],
+    ['href' => 'reports.php', 'label' => 'Back to Reports'],
+]); ?>
 
 <main>
     <section>
+        <h1>Edit Energy Report</h1>
         <?php if (!empty($errors)): ?>
             <div>
                 <ul>
