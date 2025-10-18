@@ -307,6 +307,9 @@ function formatSiteNmiBulkInput(array $rows): string
     }
 
     return implode("\n", $lines);
+}
+
+/**
  * Builds a return path that preserves the current stakeholder selections.
  */
 function buildStakeholderReturnPath(array $formData, string $basePath): string
