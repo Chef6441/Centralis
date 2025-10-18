@@ -39,7 +39,8 @@ function initializeDatabase(PDO $pdo): void
     $hasReportsTable = $statement !== false && $statement->fetchColumn() !== false;
 
     if ($hasReportsTable) {
-        ensureReportsTableHasCustomerAbn($pdo);
+        ensureCoreTablesExist($pdo);
+        ensureReportsTableHasAdditionalColumns($pdo);
         return;
     }
 
@@ -54,22 +55,99 @@ function initializeDatabase(PDO $pdo): void
     }
 
     $pdo->exec($schemaSql);
-    ensureReportsTableHasCustomerAbn($pdo);
+    ensureCoreTablesExist($pdo);
+    ensureReportsTableHasAdditionalColumns($pdo);
 }
 
 /**
- * Adds the customer_abn column to the reports table when missing.
+ * Adds optional columns to the reports table when missing.
  */
-function ensureReportsTableHasCustomerAbn(PDO $pdo): void
+function ensureReportsTableHasAdditionalColumns(PDO $pdo): void
 {
     $statement = $pdo->query('PRAGMA table_info(reports)');
     $columns = $statement !== false ? $statement->fetchAll(PDO::FETCH_ASSOC) : [];
 
-    foreach ($columns as $column) {
-        if (($column['name'] ?? '') === 'customer_abn') {
-            return;
+    $existingColumns = array_map(static function (array $column): string {
+        return (string) ($column['name'] ?? '');
+    }, $columns);
+
+    $alterStatements = [
+        'customer_abn' => 'ALTER TABLE reports ADD COLUMN customer_abn TEXT',
+        'partner_company_name' => 'ALTER TABLE reports ADD COLUMN partner_company_name TEXT',
+        'broker_company_name' => 'ALTER TABLE reports ADD COLUMN broker_company_name TEXT',
+    ];
+
+    foreach ($alterStatements as $columnName => $sql) {
+        if (!in_array($columnName, $existingColumns, true)) {
+            $pdo->exec($sql);
         }
     }
+}
 
-    $pdo->exec('ALTER TABLE reports ADD COLUMN customer_abn TEXT');
+/**
+ * Creates foundational tables when upgrading an existing database.
+ */
+function ensureCoreTablesExist(PDO $pdo): void
+{
+    $tableDefinitions = [
+        'companies' => <<<SQL
+CREATE TABLE companies (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    contact_name TEXT,
+    contact_email TEXT,
+    contact_phone TEXT,
+    address TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+)
+SQL,
+        'brokers' => <<<SQL
+CREATE TABLE brokers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    company_id INTEGER NOT NULL UNIQUE,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE
+)
+SQL,
+        'partners' => <<<SQL
+CREATE TABLE partners (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    broker_id INTEGER NOT NULL,
+    company_id INTEGER NOT NULL UNIQUE,
+    revenue_share_percentage REAL DEFAULT 0,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (broker_id) REFERENCES brokers(id) ON DELETE CASCADE,
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE
+)
+SQL,
+        'clients' => <<<SQL
+CREATE TABLE clients (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    broker_id INTEGER NOT NULL,
+    partner_id INTEGER,
+    company_id INTEGER NOT NULL UNIQUE,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (broker_id) REFERENCES brokers(id) ON DELETE CASCADE,
+    FOREIGN KEY (partner_id) REFERENCES partners(id) ON DELETE SET NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE
+)
+SQL,
+    ];
+
+    foreach ($tableDefinitions as $tableName => $createSql) {
+        if (!tableExists($pdo, $tableName)) {
+            $pdo->exec($createSql);
+        }
+    }
+}
+
+/**
+ * Determines whether the specified table exists in the database.
+ */
+function tableExists(PDO $pdo, string $tableName): bool
+{
+    $statement = $pdo->prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = :name");
+    $statement->execute([':name' => $tableName]);
+
+    return $statement->fetchColumn() !== false;
 }
