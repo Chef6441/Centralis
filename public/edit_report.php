@@ -109,6 +109,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($formData['site_nmi'] === '' && !empty($siteNmiRows)) {
         $formData['site_nmi'] = $siteNmiRows[0]['nmi'];
+    }
+
     if ($formData['customer_business_name'] === '') {
         $errors[] = 'Please select a customer before updating the report.';
     }
@@ -134,37 +136,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $pdo->beginTransaction();
 
                 $updateReport = $pdo->prepare(
-                'UPDATE reports SET
-                    report_date = :report_date,
-                    customer_business_name = :customer_business_name,
-                    customer_contact_name = :customer_contact_name,
-                    customer_abn = :customer_abn,
-                    partner_company_name = :partner_company_name,
-                    broker_company_name = :broker_company_name,
-                    broker_consultant = :broker_consultant,
-                    site_nmi = :site_nmi,
-                    site_current_retailer = :site_current_retailer,
-                    site_contract_end_date = :site_contract_end_date,
-                    site_address_line1 = :site_address_line1,
-                    site_address_line2 = :site_address_line2,
-                    site_peak_kwh = :site_peak_kwh,
-                    site_shoulder_kwh = :site_shoulder_kwh,
-                    site_off_peak_kwh = :site_off_peak_kwh,
-                    site_total_kwh = :site_total_kwh,
-                    contract_current_retailer = :contract_current_retailer,
-                    contract_term_months = :contract_term_months,
-                    current_cost = :current_cost,
-                    new_cost = :new_cost,
-                    validity_period = :validity_period,
-                    payment_terms = :payment_terms
-                WHERE id = :id'
-            );
+                    'UPDATE reports SET
+                        report_date = :report_date,
+                        customer_business_name = :customer_business_name,
+                        customer_contact_name = :customer_contact_name,
+                        customer_abn = :customer_abn,
+                        partner_company_name = :partner_company_name,
+                        broker_company_name = :broker_company_name,
+                        broker_consultant = :broker_consultant,
+                        site_nmi = :site_nmi,
+                        site_current_retailer = :site_current_retailer,
+                        site_contract_end_date = :site_contract_end_date,
+                        site_address_line1 = :site_address_line1,
+                        site_address_line2 = :site_address_line2,
+                        site_peak_kwh = :site_peak_kwh,
+                        site_shoulder_kwh = :site_shoulder_kwh,
+                        site_off_peak_kwh = :site_off_peak_kwh,
+                        site_total_kwh = :site_total_kwh,
+                        contract_current_retailer = :contract_current_retailer,
+                        contract_term_months = :contract_term_months,
+                        current_cost = :current_cost,
+                        new_cost = :new_cost,
+                        validity_period = :validity_period,
+                        payment_terms = :payment_terms
+                    WHERE id = :id'
+                );
 
                 $updateReport->execute([
                     ':report_date' => $formData['report_date'] ?: null,
                     ':customer_business_name' => $formData['customer_business_name'],
                     ':customer_contact_name' => $formData['customer_contact_name'] ?: null,
                     ':customer_abn' => $formData['customer_abn'] ?: null,
+                    ':partner_company_name' => $formData['partner_company_name'] ?: null,
+                    ':broker_company_name' => $formData['broker_company_name'] ?: null,
                     ':broker_consultant' => $formData['broker_consultant'] ?: null,
                     ':site_nmi' => $formData['site_nmi'] ?: null,
                     ':site_current_retailer' => $formData['site_current_retailer'] ?: null,
@@ -190,56 +194,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if (!empty($siteNmiRows)) {
                     $insertSiteNmi = $pdo->prepare(
-                    'INSERT INTO report_site_nmis (
-                        report_id,
-                        site_identifier,
-                        abn,
-                        nmi,
-                        utility,
-                        building_name,
-                        unit,
-                        street_number,
-                        street,
-                        suburb,
-                        state,
-                        postcode,
-                        tariff,
-                        annual_estimated_usage_kwh,
-                        peak_c_per_kwh,
-                        off_peak_c_per_kwh,
-                        daily_supply_c_per_day,
-                        average_daily_consumption,
-                        annual_usage_charge,
-                        annual_supply_charge,
-                        offer_12_months,
-                        offer_24_months,
-                        offer_36_months
-                    ) VALUES (
-                        :report_id,
-                        :site_identifier,
-                        :abn,
-                        :nmi,
-                        :utility,
-                        :building_name,
-                        :unit,
-                        :street_number,
-                        :street,
-                        :suburb,
-                        :state,
-                        :postcode,
-                        :tariff,
-                        :annual_estimated_usage_kwh,
-                        :peak_c_per_kwh,
-                        :off_peak_c_per_kwh,
-                        :daily_supply_c_per_day,
-                        :average_daily_consumption,
-                        :annual_usage_charge,
-                        :annual_supply_charge,
-                        :offer_12_months,
-                        :offer_24_months,
-                        :offer_36_months
-                    )'
-                );
+                        'INSERT INTO report_site_nmis (
+                            report_id,
+                            site_identifier,
+                            abn,
+                            nmi,
+                            utility,
+                            building_name,
+                            unit,
+                            street_number,
+                            street,
+                            suburb,
+                            state,
+                            postcode,
+                            tariff,
+                            annual_estimated_usage_kwh,
+                            peak_c_per_kwh,
+                            off_peak_c_per_kwh,
+                            daily_supply_c_per_day,
+                            average_daily_consumption,
+                            annual_usage_charge,
+                            annual_supply_charge,
+                            offer_12_months,
+                            offer_24_months,
+                            offer_36_months
+                        ) VALUES (
+                            :report_id,
+                            :site_identifier,
+                            :abn,
+                            :nmi,
+                            :utility,
+                            :building_name,
+                            :unit,
+                            :street_number,
+                            :street,
+                            :suburb,
+                            :state,
+                            :postcode,
+                            :tariff,
+                            :annual_estimated_usage_kwh,
+                            :peak_c_per_kwh,
+                            :off_peak_c_per_kwh,
+                            :daily_supply_c_per_day,
+                            :average_daily_consumption,
+                            :annual_usage_charge,
+                            :annual_supply_charge,
+                            :offer_12_months,
+                            :offer_24_months,
+                            :offer_36_months
+                        )'
+                    );
 
                     foreach ($siteNmiRows as $row) {
                         $insertSiteNmi->execute([
@@ -276,23 +280,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         supplier_name,
                         term_months,
                         peak_rate,
-                    shoulder_rate,
-                    off_peak_rate,
-                    total_cost,
-                    diff_dollar,
-                    diff_percentage
-                ) VALUES (
-                    :report_id,
-                    :supplier_name,
-                    :term_months,
-                    :peak_rate,
-                    :shoulder_rate,
-                    :off_peak_rate,
-                    :total_cost,
-                    :diff_dollar,
-                    :diff_percentage
-                )'
-            );
+                        shoulder_rate,
+                        off_peak_rate,
+                        total_cost,
+                        diff_dollar,
+                        diff_percentage
+                    ) VALUES (
+                        :report_id,
+                        :supplier_name,
+                        :term_months,
+                        :peak_rate,
+                        :shoulder_rate,
+                        :off_peak_rate,
+                        :total_cost,
+                        :diff_dollar,
+                        :diff_percentage
+                    )'
+                );
 
                 foreach ($contracts as $contract) {
                     $supplier = trim((string)($contract['supplier_name'] ?? ''));
