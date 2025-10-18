@@ -4,6 +4,33 @@ require_once __DIR__ . '/../includes/helpers.php';
 
 $pdo = getDbConnection();
 
+function buildStakeholderReturnPath(array $formData): string
+{
+    $prefillKeys = [
+        'customer_business_name',
+        'customer_contact_name',
+        'customer_abn',
+        'partner_company_name',
+        'partner_contact_name',
+        'broker_company_name',
+        'broker_consultant',
+    ];
+
+    $prefill = [];
+
+    foreach ($prefillKeys as $key) {
+        if (!empty($formData[$key])) {
+            $prefill[$key] = $formData[$key];
+        }
+    }
+
+    if (empty($prefill)) {
+        return 'create_report.php';
+    }
+
+    return 'create_report.php?' . http_build_query(['prefill' => $prefill]);
+}
+
 $formData = [
     'report_date' => date('Y-m-d'),
     'customer_business_name' => '',
@@ -52,10 +79,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' && isset($_GET['prefill']) && is_array
         }
     }
 }
-
-$selectCustomerUrl = 'add_customer.php?return_to=' . urlencode('create_report.php');
-$selectPartnerUrl = 'add_partner.php?return_to=' . urlencode('create_report.php');
-$selectBrokerUrl = 'add_broker.php?return_to=' . urlencode('create_report.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach (array_keys($formData) as $key) {
@@ -226,6 +249,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 }
+
+$returnToPath = buildStakeholderReturnPath($formData);
+$selectCustomerUrl = 'add_customer.php?return_to=' . rawurlencode($returnToPath);
+$selectPartnerUrl = 'add_partner.php?return_to=' . rawurlencode($returnToPath);
+$selectBrokerUrl = 'add_broker.php?return_to=' . rawurlencode($returnToPath);
 ?>
 <!DOCTYPE html>
 <html lang="en">
